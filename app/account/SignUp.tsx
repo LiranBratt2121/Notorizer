@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { SafeAreaView, View, StyleSheet, Alert, Platform } from "react-native";
 import Input from "../../components/common/Input";
 import Button from "../../components/common/Button";
+import { router } from "expo-router";
 
 type SignUpInfo = {
   name: string;
@@ -32,6 +33,8 @@ const SignUp: React.FC = () => {
       }
       return;
     }
+
+    router.replace('landlordDashboard/dashboard')
 
     if (Platform.OS === "web") {
       alert(`Form Submitted!\n${formData.name}`);

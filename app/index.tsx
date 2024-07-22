@@ -7,9 +7,9 @@ import Button from "../components/common/Button";
 const Index = () => {
   return (
     <View>
-      <Button onPress={() => router.push("/account/signIn")} title="Sign In" />
+      <Button onPress={() => router.push("/account/SignIn")} title="Sign In" />
 
-      <Button onPress={() => router.push("/account/signUp")} title="Sign Up" />
+      <Button onPress={() => router.push("/account/SignUp")} title="Sign Up" />
     </View>
   );
 };

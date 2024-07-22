@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { SafeAreaView, View, StyleSheet, Platform, Alert } from "react-native";
+import { router } from "expo-router";
 import Input from "../../components/common/Input";
 import Button from "../../components/common/Button";
 
@@ -30,6 +31,8 @@ const SignIn: React.FC = () => {
       }
       return;
     }
+    
+    router.replace('landlordDashboard/dashboard')
 
     if (Platform.OS === "web") {
       alert(`Signed In\nUsername: ${formData.username}`);

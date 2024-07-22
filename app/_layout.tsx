@@ -10,12 +10,24 @@ const RootLayout = () => {
           headerTitle: "Landing Page",
         }}
       />
-      <Stack.Screen name="account/SignIn" options={{
-        headerTitle: "Sign In"
-      }} />
-      <Stack.Screen name="account/SignUp" options={{
-        headerTitle: "Sign Up"
-      }}/>
+      <Stack.Screen
+        name="account/SignIn"
+        options={{
+          headerTitle: "Sign In",
+        }}
+      />
+      <Stack.Screen
+        name="account/SignUp"
+        options={{
+          headerTitle: "Sign Up",
+        }}
+      />
+      <Stack.Screen
+        name="landlordDashboard"
+        options={{
+          headerShown: false,
+        }}
+      />
     </Stack>
   );
 };

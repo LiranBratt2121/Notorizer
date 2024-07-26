@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { View, Button, StyleSheet, ScrollView, Text } from "react-native";
+import { View, StyleSheet, ScrollView, Text } from "react-native";
 import Camera from "@/components/common/Camera";
 import { Apartment, Room } from "../../types/common/Household";
 import * as FileSystem from "expo-file-system";
 import { SvgXml } from "react-native-svg";
 import base64 from 'react-native-base64';
+import Button from "@/components/common/Button";
 
 const ChooseProperty = () => {
   const [capturedImage, setCapturedImage] = useState<string>('');

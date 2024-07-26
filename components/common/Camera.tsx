@@ -43,7 +43,6 @@ const Camera = ({ apartment, room, onImageCaptured }: CameraProps) => {
         });
         if (isMounted) {
           setLocation(currentLocation);
-          console.log("Location set:", currentLocation);
         }
       } catch (error) {
         console.error("Error getting location:", error);

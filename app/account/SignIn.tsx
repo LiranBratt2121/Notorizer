@@ -1,17 +1,19 @@
 import React, { useState } from "react";
-import { SafeAreaView, View, StyleSheet, Platform, Alert } from "react-native";
+import { SafeAreaView, View, StyleSheet, Alert } from "react-native";
 import { router } from "expo-router";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { db, auth } from "../../firebaseConfig"
 import Input from "../../components/common/Input";
 import Button from "../../components/common/Button";
 
 type SignInInfo = {
-  username: string;
+  email: string;
   password: string;
 };
 
 const SignIn: React.FC = () => {
   const [formData, setFormData] = useState<SignInInfo>({
-    username: "",
+    email: "",
     password: "",
   });
 
@@ -22,39 +24,38 @@ const SignIn: React.FC = () => {
     }));
   };
 
-  const handleSubmit = () => {
-    if (!formData.username || !formData.password) {
-      if (Platform.OS === "web") {
-        alert("Please fill in all fields");
+  const handleSubmit = async () => {
+    try {
+      console.log('Trying to sign in user: ', formData.email, formData.password)
+      await signInWithEmailAndPassword(auth, formData.email, formData.password);
+      router.replace('landlordDashboard/dashboard');
+    } catch (error) {
+      if (error instanceof Error) {
+        Alert.alert("Error", error.message);
+        console.error(error);
       } else {
-        Alert.alert("Error", "Please fill in all fields");
+        Alert.alert("Error", "An unknown error occurred");
       }
-      return;
-    }
-    
-    router.replace('landlordDashboard/dashboard')
-
-    if (Platform.OS === "web") {
-      alert(`Signed In\nUsername: ${formData.username}`);
-    } else {
-      Alert.alert("Signed In", `Username: ${formData.username}`);
     }
   };
+
+  const inputFields = [
+    { label: "Email", key: "email", secureTextEntry: false },
+    { label: "Password", key: "password", secureTextEntry: true },
+  ];
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.form}>
-        <Input
-          label="Username"
-          onChangeText={(value) => handleInputChange("username", value)}
-          value={formData.username}
-        />
-        <Input
-          label="Password"
-          secureTextEntry
-          onChangeText={(value) => handleInputChange("password", value)}
-          value={formData.password}
-        />
+        {inputFields.map((field) => (
+          <Input
+            key={field.key}
+            label={field.label}
+            secureTextEntry={field.secureTextEntry}
+            onChangeText={(value) => handleInputChange(field.key as keyof SignInInfo, value)}
+            value={formData[field.key as keyof SignInInfo]}
+          />
+        ))}
         <Button title="Sign In" onPress={handleSubmit} />
         <Button
           title="Sign In with Google"

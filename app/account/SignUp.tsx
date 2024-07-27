@@ -1,10 +1,14 @@
 import React, { useState } from "react";
-import { SafeAreaView, View, StyleSheet, Alert, Platform } from "react-native";
+import { SafeAreaView, View, StyleSheet, Alert } from "react-native";
 import Input from "../../components/common/Input";
 import Button from "../../components/common/Button";
 import { router } from "expo-router";
+import { db, auth } from "../../firebaseConfig"
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
 
 type SignUpInfo = {
+  email: string;
   name: string;
   password: string;
   confirmPassword: string;
@@ -12,6 +16,7 @@ type SignUpInfo = {
 
 const SignUp: React.FC = () => {
   const [formData, setFormData] = useState<SignUpInfo>({
+    email: "",
     name: "",
     password: "",
     confirmPassword: "",
@@ -24,45 +29,53 @@ const SignUp: React.FC = () => {
     }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (formData.password !== formData.confirmPassword) {
-      if (Platform.OS === "web") {
-        alert("Passwords do not match");
-      } else {
-        Alert.alert("Error", "Passwords do not match");
-      }
+      Alert.alert("Error", "Passwords do not match");
       return;
     }
 
-    router.replace('landlordDashboard/dashboard')
+    try {
+      console.log("Trying to SignUp user", formData)
+      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+      const user = userCredential.user;
 
-    if (Platform.OS === "web") {
-      alert(`Form Submitted!\n${formData.name}`);
-    } else {
-      Alert.alert("Form Submitted!", `${formData.name}`);
+      await setDoc(doc(db, "landlordUser", user.uid), {
+        email: formData.email,
+        username: formData.name,
+      });
+
+      Alert.alert("Success", `User, ${formData.name} registered successfully`);
+      router.push("landlordDashboard/dashboard");
+    } catch (error) {
+      if (error instanceof Error) {
+        Alert.alert("Error", error.message);
+        console.error(error);
+      } else {
+        Alert.alert("Error", "An unknown error occurred");
+      }
     }
   };
+
+  const inputFields = [
+    { label: "Email", key: "email", secureTextEntry: false },
+    { label: "User Name", key: "name", secureTextEntry: false },
+    { label: "Password", key: "password", secureTextEntry: true },
+    { label: "Confirm Password", key: "confirmPassword", secureTextEntry: true },
+  ];
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.form}>
-        <Input
-          label="User Name"
-          onChangeText={(value) => handleInputChange("name", value)}
-          value={formData.name}
-        />
-        <Input
-          label="Password"
-          secureTextEntry
-          onChangeText={(value) => handleInputChange("password", value)}
-          value={formData.password}
-        />
-        <Input
-          label="Confirm Password"
-          secureTextEntry
-          onChangeText={(value) => handleInputChange("confirmPassword", value)}
-          value={formData.confirmPassword}
-        />
+        {inputFields.map((field) => (
+          <Input
+            key={field.key}
+            label={field.label}
+            secureTextEntry={field.secureTextEntry}
+            onChangeText={(value) => handleInputChange(field.key as keyof SignUpInfo, value)}
+            value={formData[field.key as keyof SignUpInfo]}
+          />
+        ))}
         <Button title="Submit" onPress={handleSubmit} />
         <Button title="Sign Up with Google" onPress={() => { /* Google Sign-Up Logic */ }} />
       </View>

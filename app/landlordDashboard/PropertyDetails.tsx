@@ -47,9 +47,9 @@ const PropertyDetails: React.FC = () => {
   }, [items, optionKey, updatedFormData]);
 
   useEffect(() => {
-    console.log('Items', items);
-    console.log('OptionKey', optionKey);
-    console.log('FormData', formData);
+    // console.log('Items', items);
+    // console.log('OptionKey', optionKey);
+    // console.log('FormData', formData);
   }, [formData]);
 
   const handleButtonPress = (title: string, optionKey: string) => {

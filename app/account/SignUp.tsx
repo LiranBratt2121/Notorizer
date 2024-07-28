@@ -5,7 +5,7 @@ import Button from "../../components/common/Button";
 import { router } from "expo-router";
 import { db, auth } from "../../firebaseConfig"
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import { collection, doc, setDoc } from "firebase/firestore";
 
 type SignUpInfo = {
   email: string;
@@ -34,17 +34,21 @@ const SignUp: React.FC = () => {
       Alert.alert("Error", "Passwords do not match");
       return;
     }
-
+  
     try {
-      console.log("Trying to SignUp user", formData)
+      console.log("Trying to SignUp user", formData);
       const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
       const user = userCredential.user;
-
-      await setDoc(doc(db, "landlordUser", user.uid), {
+  
+      const userDocRef = doc(db, "landlordUser", user.uid);
+      const dataCollectionRef = collection(userDocRef, "data");
+      collection(userDocRef, "property");
+  
+      await setDoc(doc(dataCollectionRef, "userInfo"), {
         email: formData.email,
         username: formData.name,
       });
-
+  
       Alert.alert("Success", `User, ${formData.name} registered successfully`);
       router.push("landlordDashboard/dashboard");
     } catch (error) {

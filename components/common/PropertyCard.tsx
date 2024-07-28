@@ -10,8 +10,12 @@ interface PropertyCardProps {
 const PropertyCard: React.FC<PropertyCardProps> = ({ property, imageUrl, onPress }) => {
   return (
     <TouchableOpacity onPress={onPress} style={styles.card}>
-      <Text style={styles.propertyText}>Property {property}</Text>
-      <Image source={{ uri: imageUrl }} style={styles.propertyImage} />
+      <Text style={styles.propertyText}>{property}</Text>
+      {imageUrl ? (
+        <Image source={{ uri: imageUrl }} style={styles.propertyImage} />
+      ) : (
+        <View style={styles.placeholderImage} />
+      )}
     </TouchableOpacity>
   );
 };
@@ -33,11 +37,19 @@ const styles = StyleSheet.create({
   propertyText: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 8,
   },
   propertyImage: {
     width: 100,
     height: 100,
+    marginTop: 8,
+    borderRadius: 8,
+  },
+  placeholderImage: {
+    width: 100,
+    height: 100,
+    marginTop: 8,
+    borderRadius: 8,
+    backgroundColor: '#ccc',
   },
 });
 

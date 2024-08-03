@@ -3,16 +3,22 @@ import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 
 interface PropertyCardProps {
   property: string;
-  imageUrl: string;
+  imageBase64: string;
   onPress: () => void;
 }
 
-const PropertyCard: React.FC<PropertyCardProps> = ({ property, imageUrl, onPress }) => {
+const PropertyCard: React.FC<PropertyCardProps> = ({ property, imageBase64, onPress }) => {
+  console.log('Property:', property);
+  console.log('Image Base64:', imageBase64);
+
   return (
     <TouchableOpacity onPress={onPress} style={styles.card}>
       <Text style={styles.propertyText}>{property}</Text>
-      {imageUrl ? (
-        <Image source={{ uri: imageUrl }} style={styles.propertyImage} />
+      {imageBase64 ? (
+        <Image
+          source={{ uri: `data:image/png;base64,${imageBase64}` }}
+          style={styles.propertyImage}
+        />
       ) : (
         <View style={styles.placeholderImage} />
       )}

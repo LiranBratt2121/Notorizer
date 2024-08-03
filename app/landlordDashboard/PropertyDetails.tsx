@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, View, StyleSheet, Alert, TextInput } from 'react-native';
+import { SafeAreaView, View, StyleSheet, Alert, TextInput, ActivityIndicator, Text } from 'react-native';
 import Button from '../../components/common/Button';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { doc, setDoc, collection } from "firebase/firestore";
@@ -9,6 +9,7 @@ type LocalSearchParams = {
   items?: string;
   optionKey?: string;
   updatedFormData?: string;
+  verificationData?: string;
 };
 
 type FormData = {
@@ -29,8 +30,19 @@ type Address = {
   apartmentEntry: string;
 };
 
+type LandlordVerificationData = {
+  idImageString: string | null;
+  ownershipImageString: string | null;
+  houseImageString: string | null;
+};
+
 const PropertyDetails: React.FC = () => {
   const router = useRouter();
+  const [landlordVerificationData, setLandlordVerificationData] = useState<LandlordVerificationData>({
+    idImageString: null,
+    ownershipImageString: null,
+    houseImageString: null,
+  });
   const [formData, setFormData] = useState<FormData>({
     bedrooms: [],
     bathrooms: [],
@@ -40,8 +52,6 @@ const PropertyDetails: React.FC = () => {
     addRooms: [],
     addExternalSpace: [],
   });
-
-  const { items, optionKey, updatedFormData } = useLocalSearchParams<LocalSearchParams>();
   const [address, setAddress] = useState<Address>({
     state: '',
     city: '',
@@ -49,6 +59,9 @@ const PropertyDetails: React.FC = () => {
     houseNumber: '',
     apartmentEntry: ''
   });
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const { items, optionKey, updatedFormData, verificationData } = useLocalSearchParams<LocalSearchParams>();
 
   useEffect(() => {
     if (updatedFormData) {
@@ -63,10 +76,17 @@ const PropertyDetails: React.FC = () => {
   }, [items, optionKey, updatedFormData]);
 
   useEffect(() => {
+    if (verificationData) {
+      setLandlordVerificationData(JSON.parse(verificationData));
+    }
+  }, [verificationData]);
+
+  useEffect(() => {
     console.log('Items', items);
     console.log('OptionKey', optionKey);
     console.log('FormData', formData);
-  }, [formData]);
+    console.log('LandlordVerificationData', landlordVerificationData);
+  }, [formData, landlordVerificationData]);
 
   const handleButtonPress = (title: string, optionKey: string) => {
     router.replace({
@@ -80,17 +100,36 @@ const PropertyDetails: React.FC = () => {
     });
   };
 
+  const handleVerifyPress = () => {
+    router.replace({
+      pathname: 'landlordDashboard/IDVerification',
+      params: { 
+        formData: JSON.stringify(formData),
+        verificationData: JSON.stringify(landlordVerificationData),
+        returnPath: 'landlordDashboard/PropertyDetails',
+      }, 
+    });
+  }
+
   const handleSubmit = async () => {
     if (Object.values(address).some(value => value === '')) {
-      Alert.alert("Error", "Please fill in all address fields")
+      Alert.alert("Error", "Please fill in all address fields");
       return;
     }
-    
+
+    if (!landlordVerificationData.idImageString || !landlordVerificationData.ownershipImageString || !landlordVerificationData.houseImageString) {
+      Alert.alert("Error", "Please provide ID, ownership, and house images");
+      return;
+    }
+
+    setLoading(true);
+
     const formattedAddress = `${address.state}|${address.city}|${address.street}|${address.houseNumber}|${address.apartmentEntry}`;
 
     const user = auth.currentUser;
     if (!user) {
       Alert.alert("Error", "User is not authenticated");
+      setLoading(false);
       return;
     }
 
@@ -98,7 +137,10 @@ const PropertyDetails: React.FC = () => {
 
     try {
       const propertyCollectionRef = collection(doc(db, "landlordUser", landlordId), "property");
-      await setDoc(doc(propertyCollectionRef, formattedAddress), formData);
+      await setDoc(doc(propertyCollectionRef, formattedAddress), {
+        ...formData,
+        landlordVerificationData,
+      });
 
       Alert.alert("Success", "Property details saved successfully");
       router.push("landlordDashboard/dashboard");
@@ -109,6 +151,8 @@ const PropertyDetails: React.FC = () => {
       } else {
         Alert.alert("Error", "An unknown error occurred");
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -141,19 +185,26 @@ const PropertyDetails: React.FC = () => {
         ].map((option) => (
           <Button key={option} title={option} onPress={() => handleButtonPress(option, option)} />
         ))}
+        <Button title='Verify' onPress={handleVerifyPress}/>
         <View style={styles.addressContainer}>
           {addressFields.map((field) => (
             <TextInput
               key={field.key}
               style={styles.input}
               placeholder={field.placeholder}
-              value={address[field.key as keyof Address]}
+              value={address[field.key as keyof Address] || ''}
               onChangeText={(value) => handleAddressChange(field.key as keyof Address, value)}
               keyboardType={field.keyboardType as any}
             />
           ))}
         </View>
         <Button title='Save Data' onPress={handleSubmit}/>
+        {loading && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#0000ff" />
+            <Text style={styles.loadingText}>Saving data...</Text>
+          </View>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -190,6 +241,15 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     marginHorizontal: 5,
     paddingHorizontal: 10,
+  },
+  loadingContainer: {
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#333',
   },
 });
 

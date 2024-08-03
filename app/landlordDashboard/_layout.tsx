@@ -29,6 +29,12 @@ const LandlordDashboardLayout = () => {
           headerTitle: "Adjust Details",
         }}
       />
+      <Stack.Screen
+        name="IDVerification"
+        options={{
+          headerTitle: "ID Verification",
+        }}
+      />
     </Stack>
   );
 };

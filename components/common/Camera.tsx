@@ -1,27 +1,18 @@
 import React, { useEffect, useRef, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
-import {
-  CameraCapturedPicture,
-  CameraType,
-  CameraView,
-  useCameraPermissions,
-} from "expo-camera";
+import { CameraCapturedPicture, CameraType, CameraView, useCameraPermissions } from "expo-camera";
 import * as Location from "expo-location";
 import * as FileSystem from "expo-file-system";
-import { Apartment, Room } from "../../types/common/Household";
 
 type CameraProps = {
-  apartment: Apartment;
-  room: Room;
+  source: string;
   onImageCaptured: (filePath: string) => void;
 };
 
-const Camera = ({ apartment, room, onImageCaptured }: CameraProps) => {
+const Camera = ({ source, onImageCaptured }: CameraProps) => {
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const [facing, setFacing] = useState<CameraType>("back");
-  const [location, setLocation] = useState<Location.LocationObject | null>(
-    null
-  );
+  const [location, setLocation] = useState<Location.LocationObject | null>(null);
   const cameraRef = useRef<CameraView>(null);
 
   useEffect(() => {
@@ -30,10 +21,7 @@ const Camera = ({ apartment, room, onImageCaptured }: CameraProps) => {
     const getLocationPermission = async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        Alert.alert(
-          "Permission Denied",
-          "Location permission is required for this feature."
-        );
+        Alert.alert("Permission Denied", "Location permission is required for this feature.");
         return;
       }
 
@@ -72,8 +60,7 @@ const Camera = ({ apartment, room, onImageCaptured }: CameraProps) => {
         if (!photo) throw new Error("Image is undefined");
 
         const waterMarkPhotoPath = await addWaterMark(photo, location);
-        if (!waterMarkPhotoPath)
-          throw new Error("WaterMark image is undefined");
+        if (!waterMarkPhotoPath) throw new Error("WaterMark image is undefined");
         onImageCaptured(waterMarkPhotoPath);
       } catch (error) {
         console.error("Error taking picture:", error);
@@ -92,9 +79,7 @@ const Camera = ({ apartment, room, onImageCaptured }: CameraProps) => {
     const svgMarkup = `
       <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
         <rect width="100%" height="100%" fill="black" />
-        <image href="${
-          img.uri
-        }" width="100%" height="100%" preserveAspectRatio="xMidYMid meet"/>
+        <image href="${img.uri}" width="100%" height="100%" preserveAspectRatio="xMidYMid meet"/>
         <text x="10" y="75%" font-size="10" fill="white" font-family="Arial" font-weight="bold">OffsetTime: ${
           exif?.OffsetTimeOriginal || "N/A"
         }</text>
@@ -107,7 +92,8 @@ const Camera = ({ apartment, room, onImageCaptured }: CameraProps) => {
       </svg>
     `;
 
-    const filePath = `${FileSystem.documentDirectory}${apartment.addr}_${room.name}_${room.side}_${exif?.DateTimeOriginal}.svg`;
+    const currentDate = new Date().toISOString().replace(/[:.]/g, "-");
+    const filePath = `${FileSystem.documentDirectory}${source}_${currentDate}.svg`;
     await FileSystem.writeAsStringAsync(filePath, svgMarkup, {
       encoding: FileSystem.EncodingType.UTF8,
     });
@@ -118,13 +104,8 @@ const Camera = ({ apartment, room, onImageCaptured }: CameraProps) => {
   if (!cameraPermission?.granted) {
     return (
       <View style={styles.permissionContainer}>
-        <Text style={styles.message}>
-          We need your permission to show the camera
-        </Text>
-        <TouchableOpacity
-          onPress={requestCameraPermission}
-          style={styles.permissionButton}
-        >
+        <Text style={styles.message}>We need your permission to show the camera</Text>
+        <TouchableOpacity onPress={requestCameraPermission} style={styles.permissionButton}>
           <Text style={styles.buttonText}>Grant Permission</Text>
         </TouchableOpacity>
       </View>
@@ -149,6 +130,7 @@ const Camera = ({ apartment, room, onImageCaptured }: CameraProps) => {
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,

@@ -9,26 +9,29 @@ import {
   Text,
   ScrollView,
 } from "react-native";
-import Button from "../../components/common/Button";
-import { useRouter, useLocalSearchParams } from "expo-router";
 import { doc, setDoc, collection } from "firebase/firestore";
+import { useRouter, useLocalSearchParams } from "expo-router";
+import Button from "../../components/common/Button";
 import { db, auth } from "../../firebaseConfig";
 
 type LocalSearchParams = {
-  items?: string;
-  optionKey?: string;
   updatedFormData?: string;
   verificationData?: string;
 };
 
+type RoomData = {
+  name: string;
+  images: string[]; // This is now an array of URIs instead of base64 strings
+};
+
 type FormData = {
-  bedrooms: string[];
-  bathrooms: string[];
-  kitchen: string[];
-  livingRooms: string[];
-  externalView: string[];
-  addRooms: string[];
-  addExternalSpace: string[];
+  bedrooms: RoomData[];
+  bathrooms: RoomData[];
+  kitchen: RoomData[];
+  livingRooms: RoomData[];
+  externalView: RoomData[];
+  addRooms: RoomData[];
+  addExternalSpace: RoomData[];
 };
 
 type Address = {
@@ -40,19 +43,18 @@ type Address = {
 };
 
 type LandlordVerificationData = {
-  idImageString: string | null;
-  ownershipImageString: string | null;
-  houseImageString: string | null;
+  idImageUri: string | null;
+  ownershipImageUri: string | null;
+  houseImageUri: string | null;
 };
 
 const PropertyDetails: React.FC = () => {
   const router = useRouter();
-  const [landlordVerificationData, setLandlordVerificationData] =
-    useState<LandlordVerificationData>({
-      idImageString: null,
-      ownershipImageString: null,
-      houseImageString: null,
-    });
+  const [landlordVerificationData, setLandlordVerificationData] = useState<LandlordVerificationData>({
+    idImageUri: null,
+    ownershipImageUri: null,
+    houseImageUri: null,
+  });
   const [formData, setFormData] = useState<FormData>({
     bedrooms: [],
     bathrooms: [],
@@ -71,39 +73,20 @@ const PropertyDetails: React.FC = () => {
   });
   const [loading, setLoading] = useState<boolean>(false);
 
-  const { items, optionKey, updatedFormData, verificationData } =
-    useLocalSearchParams<LocalSearchParams>();
+  const { updatedFormData, verificationData } = useLocalSearchParams<LocalSearchParams>();
 
   useEffect(() => {
+    console.log("Received data:", { updatedFormData, verificationData });
     if (updatedFormData) {
       setFormData(JSON.parse(updatedFormData));
-    } else if (optionKey && items) {
-      const parsedItems = JSON.parse(items);
-      setFormData((prevData) => ({
-        ...prevData,
-        [optionKey]: [
-          ...(prevData[optionKey as keyof FormData] || []),
-          ...parsedItems,
-        ],
-      }));
     }
-  }, [items, optionKey, updatedFormData]);
-
-  useEffect(() => {
     if (verificationData) {
       setLandlordVerificationData(JSON.parse(verificationData));
     }
-  }, [verificationData]);
-
-  useEffect(() => {
-    console.log("Items", items);
-    console.log("OptionKey", optionKey);
-    console.log("FormData", formData);
-    console.log("LandlordVerificationData", landlordVerificationData);
-  }, [formData, landlordVerificationData]);
+  }, [updatedFormData, verificationData]);
 
   const handleButtonPress = (title: string, optionKey: string) => {
-    router.replace({
+    router.push({
       pathname: "landlordDashboard/SliderMenuScreen",
       params: {
         title,
@@ -115,11 +98,10 @@ const PropertyDetails: React.FC = () => {
   };
 
   const handleVerifyPress = () => {
-    router.replace({
+    router.push({
       pathname: "landlordDashboard/IDVerification",
       params: {
         formData: JSON.stringify(formData),
-        verificationData: JSON.stringify(landlordVerificationData),
         returnPath: "landlordDashboard/PropertyDetails",
       },
     });
@@ -131,10 +113,12 @@ const PropertyDetails: React.FC = () => {
       return;
     }
 
+    console.log("Verification data:", landlordVerificationData);
+
     if (
-      !landlordVerificationData.idImageString ||
-      !landlordVerificationData.ownershipImageString ||
-      !landlordVerificationData.houseImageString
+      !landlordVerificationData.idImageUri ||
+      !landlordVerificationData.ownershipImageUri ||
+      !landlordVerificationData.houseImageUri
     ) {
       Alert.alert("Error", "Please provide ID, ownership, and house images");
       return;
@@ -158,9 +142,16 @@ const PropertyDetails: React.FC = () => {
         doc(db, "landlordUser", landlordId),
         "property"
       );
+
+      console.log("Saving data to Firestore")
+      console.log(formData)
       await setDoc(doc(propertyCollectionRef, formattedAddress), {
         ...formData,
-        landlordVerificationData,
+        landlordVerificationData: {
+          idImageUri: landlordVerificationData.idImageUri,
+          ownershipImageUri: landlordVerificationData.ownershipImageUri,
+          houseImageUri: landlordVerificationData.houseImageUri,
+        },
       });
 
       Alert.alert("Success", "Property details saved successfully");
@@ -188,16 +179,8 @@ const PropertyDetails: React.FC = () => {
     { key: "state", placeholder: "State", keyboardType: "default" },
     { key: "city", placeholder: "City", keyboardType: "default" },
     { key: "street", placeholder: "Street", keyboardType: "default" },
-    {
-      key: "houseNumber",
-      placeholder: "House Number",
-      keyboardType: "numeric",
-    },
-    {
-      key: "apartmentEntry",
-      placeholder: "Apartment Entry",
-      keyboardType: "numeric",
-    },
+    { key: "houseNumber", placeholder: "House Number", keyboardType: "numeric" },
+    { key: "apartmentEntry", placeholder: "Apartment Entry", keyboardType: "numeric" },
   ];
 
   return (
@@ -227,7 +210,7 @@ const PropertyDetails: React.FC = () => {
                 style={styles.input}
                 placeholder={field.placeholder}
                 placeholderTextColor="#808080"
-                value={address[field.key as keyof Address] || ""}
+                value={address[field.key as keyof Address]}
                 onChangeText={(value) =>
                   handleAddressChange(field.key as keyof Address, value)
                 }

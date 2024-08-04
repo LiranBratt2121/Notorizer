@@ -8,7 +8,6 @@ import { db, auth } from "../../firebaseConfig";
 interface Property {
   id: string;
   address: string;
-  imageBase64: string; 
   data: any;
 }
 
@@ -33,8 +32,8 @@ const ChooseProperty: React.FC = () => {
         const querySnapshot = await getDocs(propertyCollectionRef);
         const fetchedProperties: Property[] = querySnapshot.docs.map(doc => ({
           id: doc.id,
-          address: doc.id, // doc.id is the address.
-          imageBase64: doc.data().landlordVerificationData?.houseImageString || '', 
+          address: doc.id,
+          imageUri: doc.data().landlordVerificationData?.houseImageUri || '',
           data: doc.data()
         }));
         setProperties(fetchedProperties);
@@ -57,7 +56,7 @@ const ChooseProperty: React.FC = () => {
     <PropertyCard
       key={item.id}
       property={item.address}
-      imageBase64={item.imageBase64}
+      imageUri={item.data.imageUri}
       onPress={() => router.push({ pathname: 'propertyDetails', params: { propertyId: item.id } })}
     />
   );

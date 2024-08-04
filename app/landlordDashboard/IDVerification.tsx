@@ -3,7 +3,6 @@ import {
   View,
   StyleSheet,
   Alert,
-  Button,
   Image,
   Text,
   ActivityIndicator,
@@ -11,6 +10,7 @@ import {
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
+import Button from "../../components/common/Button";
 
 type LocalSearchParams = {
   formData?: string;
@@ -18,19 +18,25 @@ type LocalSearchParams = {
 };
 
 type ImageData = {
-  idImageString: string | null;
-  ownershipImageString: string | null;
-  houseImageString: string | null;
+  idImageUri: string | null;
+  ownershipImageUri: string | null;
+  houseImageUri: string | null;
 };
+
+const imageTypes: { key: keyof ImageData; title: string }[] = [
+  { key: "idImageUri", title: "ID" },
+  { key: "ownershipImageUri", title: "Ownership" },
+  { key: "houseImageUri", title: "House" },
+];
 
 const IDVerification: React.FC = () => {
   const router = useRouter();
   const { formData, returnPath } = useLocalSearchParams<LocalSearchParams>();
 
   const [images, setImages] = useState<ImageData>({
-    idImageString: null,
-    ownershipImageString: null,
-    houseImageString: null,
+    idImageUri: null,
+    ownershipImageUri: null,
+    houseImageUri: null,
   });
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -42,25 +48,21 @@ const IDVerification: React.FC = () => {
     }
 
     const result = await ImagePicker.launchCameraAsync({
-      base64: true,
-      quality: 1,
+      base64: false,
+      quality: 0.1,
     });
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
       setImages((prevImages) => ({
         ...prevImages,
-        [imageType]: result.assets[0].base64 ?? null,
+        [imageType]: result.assets[0].uri ?? null,
       }));
     }
   };
 
   const handleSend = () => {
-    if (
-      !images.idImageString ||
-      !images.ownershipImageString ||
-      !images.houseImageString
-    ) {
-      Alert.alert("Error", "Please capture ID, ownership, and house images");
+    if (Object.values(images).some((uri) => !uri)) {
+      Alert.alert("Error", "Please capture all required images");
       return;
     }
 
@@ -68,10 +70,12 @@ const IDVerification: React.FC = () => {
 
     const verificationData = JSON.stringify(images);
 
+    console.log("Sending data back:", { formData, verificationData });
+
     router.replace({
       pathname: returnPath || "",
       params: {
-        formData,
+        updatedFormData: formData,
         verificationData,
       },
     });
@@ -82,41 +86,21 @@ const IDVerification: React.FC = () => {
   return (
     <ScrollView>
       <View style={styles.container}>
-        <Button
-          title="Capture ID Image"
-          onPress={() => takePicture("idImageString")}
-        />
-        {images.idImageString && (
-          <Image
-            source={{ uri: `data:image/png;base64,${images.idImageString}` }}
-            style={styles.image}
-            resizeMode="contain"
-          />
-        )}
-        <Button
-          title="Capture Ownership Image"
-          onPress={() => takePicture("ownershipImageString")}
-        />
-        {images.ownershipImageString && (
-          <Image
-            source={{
-              uri: `data:image/png;base64,${images.ownershipImageString}`,
-            }}
-            style={styles.image}
-            resizeMode="contain"
-          />
-        )}
-        <Button
-          title="Capture House Image"
-          onPress={() => takePicture("houseImageString")}
-        />
-        {images.houseImageString && (
-          <Image
-            source={{ uri: `data:image/png;base64,${images.houseImageString}` }}
-            style={styles.image}
-            resizeMode="contain"
-          />
-        )}
+        {imageTypes.map(({ key, title }) => (
+          <View key={key}>
+            <Button
+              title={`Capture ${title} Image`}
+              onPress={() => takePicture(key)}
+            />
+            {images[key] && (
+              <Image
+                source={{ uri: images[key] ?? undefined }}
+                style={styles.image}
+                resizeMode="contain"
+              />
+            )}
+          </View>
+        ))}
         <Button title="Send" onPress={handleSend} />
         {loading && (
           <View style={styles.loadingContainer}>

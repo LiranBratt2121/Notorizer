@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, Alert, TextInput } from 'react-native';
 import Slider from '@react-native-community/slider';
+import * as ImagePicker from 'expo-image-picker';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import Button from './Button';
+import Button from '@/components/common/Button';
 
 type SliderMenuParams = {
   title: string;
@@ -11,14 +12,19 @@ type SliderMenuParams = {
   returnPath: string;
 };
 
+type RoomData = {
+  name: string;
+  images: string[];
+};
+
 type FormData = {
-  bedrooms: string[];
-  bathrooms: string[];
-  kitchen: string[];
-  livingRooms: string[];
-  externalView: string[];
-  addRooms: string[];
-  addExternalSpace: string[];
+  bedrooms: RoomData[];
+  bathrooms: RoomData[];
+  kitchen: RoomData[];
+  livingRooms: RoomData[];
+  externalView: RoomData[];
+  addRooms: RoomData[];
+  addExternalSpace: RoomData[];
 };
 
 const SliderMenu: React.FC = () => {
@@ -35,38 +41,50 @@ const SliderMenu: React.FC = () => {
   };
 
   const [sliderValue, setSliderValue] = useState(0);
-  const [items, setItems] = useState<string[]>([]);
+  const [items, setItems] = useState<RoomData[]>([]);
   const [currentFormData, setCurrentFormData] = useState<FormData>(parsedFormData);
 
   useEffect(() => {
     if (optionKey && currentFormData[optionKey as keyof FormData]) {
-      setItems(currentFormData[optionKey as keyof FormData]);
-      setSliderValue(currentFormData[optionKey as keyof FormData].length);
+      const rooms = currentFormData[optionKey as keyof FormData];
+      setItems(rooms);
+      setSliderValue(rooms.length);
     }
   }, [optionKey, currentFormData]);
 
   const handleValueChange = (value: number) => {
     setSliderValue(value);
-    setItems(Array.from({ length: value }, (_, i) => `${title} ${i + 1}`));
+    setItems(Array.from({ length: value }, (_, i) => ({
+      name: `${title} ${i + 1}`,
+      images: [],
+    })));
   };
 
   const handleItemChange = (index: number, name: string) => {
     setItems((prevItems) => {
       const newItems = [...prevItems];
-      newItems[index] = name;
+      newItems[index].name = name;
       return newItems;
     });
   };
 
   const handleSave = () => {
+    const invalidItems = items.some(item => item.name.trim() === '' || item.images.length === 0);
+
+    if (invalidItems) {
+      Alert.alert('Error', 'Please make sure each room has a name and at least one photo.');
+      return;
+    }
+
     Alert.alert('Data Saved', JSON.stringify(items));
     console.log('Saving items:', items, 'with optionKey:', optionKey);
 
-    if (!optionKey) return
+    if (!optionKey) return;
     const updatedFormData = {
       ...currentFormData,
       [optionKey]: items,
     };
+    setCurrentFormData(updatedFormData);
 
     if (returnPath) {
       router.replace({
@@ -75,6 +93,24 @@ const SliderMenu: React.FC = () => {
       });
     } else {
       Alert.alert('Error', 'Return path is not defined');
+    }
+  };
+
+  const pickImage = async (index: number) => {
+    let result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 0.1,
+    });
+
+    if (!result.canceled && result.assets?.length > 0) {
+      const imageUri = result.assets[0].uri;
+      console.log('Image captured:', imageUri);
+      setItems((prevItems) => {
+        const newItems = [...prevItems];
+        newItems[index].images = [imageUri];
+        return newItems;
+      });
     }
   };
 
@@ -93,9 +129,13 @@ const SliderMenu: React.FC = () => {
         <View key={index} style={styles.item}>
           <TextInput
             style={styles.input}
-            placeholder={`Name of ${item}`}
-            value={item}
+            placeholder={`Name of ${item.name}`}
+            value={item.name}
             onChangeText={(text) => handleItemChange(index, text)}
+          />
+          <Button
+            title={item.images.length > 0 ? 'Take Again' : 'Take Photo'}
+            onPress={() => pickImage(index)}
           />
         </View>
       ))}
@@ -131,6 +171,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     paddingHorizontal: 8,
     backgroundColor: '#fff',
+    marginRight: 8,
   },
 });
 

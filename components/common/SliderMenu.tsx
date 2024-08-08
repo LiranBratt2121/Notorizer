@@ -101,14 +101,15 @@ const SliderMenu: React.FC = () => {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 0.1,
+      base64: true,
     });
-
+    
     if (!result.canceled && result.assets?.length > 0) {
-      const imageUri = result.assets[0].uri;
-      console.log('Image captured:', imageUri);
+      const imageBase64 = result.assets[0].base64
+  
       setItems((prevItems) => {
         const newItems = [...prevItems];
-        newItems[index].images = [imageUri];
+        newItems[index].images = [imageBase64 ?? ''];
         return newItems;
       });
     }

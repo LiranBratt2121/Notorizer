@@ -18,15 +18,15 @@ type LocalSearchParams = {
 };
 
 type ImageData = {
-  idImageUri: string | null;
-  ownershipImageUri: string | null;
-  houseImageUri: string | null;
+  idImage: string | null;
+  ownershipImage: string | null;
+  houseImage: string | null;
 };
 
 const imageTypes: { key: keyof ImageData; title: string }[] = [
-  { key: "idImageUri", title: "ID" },
-  { key: "ownershipImageUri", title: "Ownership" },
-  { key: "houseImageUri", title: "House" },
+  { key: "idImage", title: "ID" },
+  { key: "ownershipImage", title: "Ownership" },
+  { key: "houseImage", title: "House" },
 ];
 
 const IDVerification: React.FC = () => {
@@ -34,9 +34,9 @@ const IDVerification: React.FC = () => {
   const { formData, returnPath } = useLocalSearchParams<LocalSearchParams>();
 
   const [images, setImages] = useState<ImageData>({
-    idImageUri: null,
-    ownershipImageUri: null,
-    houseImageUri: null,
+    idImage: null,
+    ownershipImage: null,
+    houseImage: null,
   });
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -48,20 +48,23 @@ const IDVerification: React.FC = () => {
     }
 
     const result = await ImagePicker.launchCameraAsync({
-      base64: false,
+      allowsEditing: true,
       quality: 0.1,
+      base64: true,
     });
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
+      const imageBase64 = result.assets[0].base64;
+
       setImages((prevImages) => ({
         ...prevImages,
-        [imageType]: result.assets[0].uri ?? null,
+        [imageType]: imageBase64 ?? null,
       }));
     }
   };
 
   const handleSend = () => {
-    if (Object.values(images).some((uri) => !uri)) {
+    if (Object.values(images).some((image) => !image)) {
       Alert.alert("Error", "Please capture all required images");
       return;
     }
@@ -94,7 +97,7 @@ const IDVerification: React.FC = () => {
             />
             {images[key] && (
               <Image
-                source={{ uri: images[key] ?? undefined }}
+                source={{ uri: `data:image/jpeg;base64,${images[key]}` }}
                 style={styles.image}
                 resizeMode="contain"
               />

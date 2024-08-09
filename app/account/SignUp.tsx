@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { SafeAreaView, View, StyleSheet, Alert } from "react-native";
 import Input from "../../components/common/Input";
 import Button from "../../components/common/Button";
-import { router } from "expo-router";
-import { db, auth } from "../../firebaseConfig"
+import { useRouter, useLocalSearchParams } from "expo-router";
+import { db, auth } from "../../firebaseConfig";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { collection, doc, setDoc } from "firebase/firestore";
 
@@ -12,6 +12,19 @@ type SignUpInfo = {
   name: string;
   password: string;
   confirmPassword: string;
+  fullName?: string;
+  signature?: string;
+  isAgreed?: string;
+};
+
+type LocalSearchParamsProps = {
+  signature?: string;
+  fullName?: string;
+  isAgreed?: string;
+  email?: string;
+  password?: string;
+  name?: string;
+  confirmPassword?: string;
 };
 
 const SignUp: React.FC = () => {
@@ -20,7 +33,24 @@ const SignUp: React.FC = () => {
     name: "",
     password: "",
     confirmPassword: "",
+    fullName: "",
   });
+
+  const { signature, fullName, isAgreed, email, password, name, confirmPassword } = useLocalSearchParams<LocalSearchParamsProps>();
+  const router = useRouter();
+
+  useEffect(() => {
+    setFormData((prevState) => ({
+      ...prevState,
+      email: email || prevState.email,
+      name: name || prevState.name,
+      password: password || prevState.password,
+      confirmPassword: confirmPassword || prevState.confirmPassword,
+      fullName: fullName || prevState.fullName,
+      signature: signature || prevState.signature,
+      isAgreed: isAgreed || prevState.isAgreed,
+    }));
+  }, [signature, fullName, isAgreed, email, password, name, confirmPassword]);
 
   const handleInputChange = (name: keyof SignUpInfo, value: string) => {
     setFormData((prevState) => ({
@@ -29,26 +59,38 @@ const SignUp: React.FC = () => {
     }));
   };
 
+  const handleSignatureButton = () => {
+    router.push({
+      pathname: "account/SignUpUserAgreement",
+      params: {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        confirmPassword: formData.confirmPassword, // Pass confirmPassword
+      },
+    });
+  };
+
   const handleSubmit = async () => {
     if (formData.password !== formData.confirmPassword) {
       Alert.alert("Error", "Passwords do not match");
       return;
     }
-  
+
     try {
-      console.log("Trying to SignUp user", formData);
       const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
       const user = userCredential.user;
-  
+
       const userDocRef = doc(db, "landlordUser", user.uid);
       const dataCollectionRef = collection(userDocRef, "data");
-      collection(userDocRef, "property");
-  
+
       await setDoc(doc(dataCollectionRef, "userInfo"), {
         email: formData.email,
         username: formData.name,
+        signature: formData.signature,
+        fullName: formData.fullName,
       });
-  
+
       Alert.alert("Success", `User, ${formData.name} registered successfully`);
       router.push("landlordDashboard/dashboard");
     } catch (error) {
@@ -66,6 +108,7 @@ const SignUp: React.FC = () => {
     { label: "User Name", key: "name", secureTextEntry: false },
     { label: "Password", key: "password", secureTextEntry: true },
     { label: "Confirm Password", key: "confirmPassword", secureTextEntry: true },
+    { label: "Full Name", key: "fullName", secureTextEntry: false }, // Added Full Name input
   ];
 
   return (
@@ -76,10 +119,13 @@ const SignUp: React.FC = () => {
             key={field.key}
             label={field.label}
             secureTextEntry={field.secureTextEntry}
-            onChangeText={(value) => handleInputChange(field.key as keyof SignUpInfo, value)}
-            value={formData[field.key as keyof SignUpInfo]}
+            onChangeText={(value) =>
+              handleInputChange(field.key as keyof SignUpInfo, value)
+            }
+            value={formData[field.key as keyof SignUpInfo] || ""}
           />
         ))}
+        <Button title="Sign User Agreement" onPress={handleSignatureButton} />
         <Button title="Submit" onPress={handleSubmit} />
         <Button title="Sign Up with Google" onPress={() => { /* Google Sign-Up Logic */ }} />
       </View>

@@ -21,7 +21,7 @@ type LocalSearchParams = {
 
 type RoomData = {
   name: string;
-  images: string[]; // This is now an array of URIs instead of base64 strings
+  images: string[];
 };
 
 type FormData = {
@@ -43,18 +43,19 @@ type Address = {
 };
 
 type LandlordVerificationData = {
-  idImageUri: string | null;
-  ownershipImageUri: string | null;
-  houseImageUri: string | null;
+  idImageBase64: string | null;
+  ownershipImageBase64: string | null;
+  houseImageBase64: string | null;
 };
 
 const PropertyDetails: React.FC = () => {
   const router = useRouter();
-  const [landlordVerificationData, setLandlordVerificationData] = useState<LandlordVerificationData>({
-    idImageUri: null,
-    ownershipImageUri: null,
-    houseImageUri: null,
-  });
+  const [landlordVerificationData, setLandlordVerificationData] =
+    useState<LandlordVerificationData>({
+      idImageBase64: null,
+      ownershipImageBase64: null,
+      houseImageBase64: null,
+    });
   const [formData, setFormData] = useState<FormData>({
     bedrooms: [],
     bathrooms: [],
@@ -76,7 +77,6 @@ const PropertyDetails: React.FC = () => {
   const { updatedFormData, verificationData } = useLocalSearchParams<LocalSearchParams>();
 
   useEffect(() => {
-    console.log("Received data:", { updatedFormData, verificationData });
     if (updatedFormData) {
       setFormData(JSON.parse(updatedFormData));
     }
@@ -113,12 +113,11 @@ const PropertyDetails: React.FC = () => {
       return;
     }
 
-    console.log("Verification data:", landlordVerificationData);
-
+    console.log(landlordVerificationData.ownershipImageBase64)
     if (
-      !landlordVerificationData.idImageUri ||
-      !landlordVerificationData.ownershipImageUri ||
-      !landlordVerificationData.houseImageUri
+      !landlordVerificationData.idImageBase64 ||
+      !landlordVerificationData.ownershipImageBase64 ||
+      !landlordVerificationData.houseImageBase64
     ) {
       Alert.alert("Error", "Please provide ID, ownership, and house images");
       return;
@@ -143,14 +142,12 @@ const PropertyDetails: React.FC = () => {
         "property"
       );
 
-      console.log("Saving data to Firestore")
-      console.log(formData)
       await setDoc(doc(propertyCollectionRef, formattedAddress), {
         ...formData,
         landlordVerificationData: {
-          idImageUri: landlordVerificationData.idImageUri,
-          ownershipImageUri: landlordVerificationData.ownershipImageUri,
-          houseImageUri: landlordVerificationData.houseImageUri,
+          idImageBase64: landlordVerificationData.idImageBase64,
+          ownershipImageBase64: landlordVerificationData.ownershipImageBase64,
+          houseImageBase64: landlordVerificationData.houseImageBase64,
         },
       });
 
@@ -179,8 +176,16 @@ const PropertyDetails: React.FC = () => {
     { key: "state", placeholder: "State", keyboardType: "default" },
     { key: "city", placeholder: "City", keyboardType: "default" },
     { key: "street", placeholder: "Street", keyboardType: "default" },
-    { key: "houseNumber", placeholder: "House Number", keyboardType: "numeric" },
-    { key: "apartmentEntry", placeholder: "Apartment Entry", keyboardType: "numeric" },
+    {
+      key: "houseNumber",
+      placeholder: "House Number",
+      keyboardType: "numeric",
+    },
+    {
+      key: "apartmentEntry",
+      placeholder: "Apartment Entry",
+      keyboardType: "numeric",
+    },
   ];
 
   return (

@@ -9,6 +9,7 @@ import {
   ScrollView,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
+import { uploadBase64Image } from "@/utils/StorageUtils";
 import * as ImagePicker from "expo-image-picker";
 import Button from "../../components/common/Button";
 
@@ -18,15 +19,15 @@ type LocalSearchParams = {
 };
 
 type ImageData = {
-  idImageBase64: string | null;
-  ownershipImageBase64: string | null;
-  houseImageBase64: string | null;
+  idImageUrl: string | null;
+  ownershipImageUrl: string | null;
+  houseImageUrl: string | null;
 };
 
 const imageTypes: { key: keyof ImageData; title: string }[] = [
-  { key: "idImageBase64", title: "ID" },
-  { key: "ownershipImageBase64", title: "Ownership" },
-  { key: "houseImageBase64", title: "House" },
+  { key: "idImageUrl", title: "ID" },
+  { key: "ownershipImageUrl", title: "Ownership" },
+  { key: "houseImageUrl", title: "House" },
 ];
 
 const IDVerification: React.FC = () => {
@@ -34,9 +35,9 @@ const IDVerification: React.FC = () => {
   const { formData, returnPath } = useLocalSearchParams<LocalSearchParams>();
 
   const [images, setImages] = useState<ImageData>({
-    idImageBase64: null,
-    ownershipImageBase64: null,
-    houseImageBase64: null,
+    idImageUrl: null,
+    ownershipImageUrl: null,
+    houseImageUrl: null,
   });
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -53,12 +54,13 @@ const IDVerification: React.FC = () => {
       base64: true,
     });
 
-
     if (result.assets) {
       const imageBase64 = result.assets[0].base64;
+      const downloadUrlImageBase64 = await uploadBase64Image(imageBase64 ?? "");
+
       setImages((prevImages) => ({
         ...prevImages,
-        [imageType]: imageBase64 ?? null,
+        [imageType]: downloadUrlImageBase64,
       }));
     }
   };
@@ -70,6 +72,8 @@ const IDVerification: React.FC = () => {
     }
 
     setLoading(true);
+
+    console.log("ID VERIFACTION LANDLORD", images);
 
     router.replace({
       pathname: returnPath || "",
@@ -93,7 +97,7 @@ const IDVerification: React.FC = () => {
             />
             {images[key] && (
               <Image
-                source={{ uri: `data:image/jpeg;base64,${images[key]}` }}
+                source={{ uri: images[key]} }
                 style={styles.image}
                 resizeMode="contain"
               />

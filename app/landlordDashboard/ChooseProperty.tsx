@@ -6,9 +6,9 @@ import { collection, getDocs, doc } from 'firebase/firestore';
 import { db, auth } from "../../firebaseConfig";
 
 type LandlordVerificationData = {
-  idImageBase64: string | null;
-  ownershipImageBase64: string | null;
-  houseImageBase64: string | null;
+  idImageUrl: string | null;
+  ownershipImageUrl: string | null;
+  houseImageUrl: string | null;
 };
 
 type Data = {
@@ -68,13 +68,13 @@ const ChooseProperty: React.FC = () => {
   }, []);
 
   const renderItem = ({ item }: { item: Property }) => {
-    const base64Image = item.data.landlordVerificationData.houseImageBase64;
-  
+    const url = item.data.landlordVerificationData.houseImageUrl;
+    console.log(url);
     return (
       <PropertyCard
         key={item.address}
         property={item.address}
-        imageUri={`data:image/jpeg;base64,${base64Image}`}
+        imageUri={url ?? ""}
         onPress={() => router.push({ pathname: 'propertyDetails', params: { propertyId: item.address } })}
       />
     );

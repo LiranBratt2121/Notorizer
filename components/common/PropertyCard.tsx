@@ -11,14 +11,10 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, imageUri, onPress
   return (
     <TouchableOpacity onPress={onPress} style={styles.card}>
       <Text style={styles.propertyText}>{property}</Text>
-      {imageUri ? (
         <Image
           source={{ uri: imageUri }}
           style={styles.propertyImage}
         />
-      ) : (
-        <View style={styles.placeholderImage} />
-      )}
     </TouchableOpacity>
   );
 };
@@ -46,13 +42,6 @@ const styles = StyleSheet.create({
     height: 100,
     marginTop: 8,
     borderRadius: 8,
-  },
-  placeholderImage: {
-    width: 100,
-    height: 100,
-    marginTop: 8,
-    borderRadius: 8,
-    backgroundColor: '#ccc',
   },
 });
 

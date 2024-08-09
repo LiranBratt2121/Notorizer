@@ -4,6 +4,7 @@ import React, { useState, useRef } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import ExpoDraw from "expo-draw";
 import { captureRef as takeSnapshotAsync } from "react-native-view-shot";
+import { uploadBase64Image } from "@/utils/StorageUtils";
 import uriToBase64 from "@/utils/UriToBase64";
 import Button from "./Button";
 
@@ -23,13 +24,13 @@ const SignatureScreen = ({handleSave}: SignatureScreenProps) => {
   const saveCanvas = async () => {
     try {
       const signature_result = await takeSnapshotAsync(signatureRef.current, {
-        format: "jpg",
+        format: "png",
         quality: 0.5,
-        result: "tmpfile",
+        result: "base64",
       });
-
-      const base64 = await uriToBase64(signature_result);
-      handleSave(base64);
+      
+      const downloadUrlToBase64 = await uploadBase64Image(signature_result);
+      handleSave(downloadUrlToBase64);
     } catch (error) {
       console.log(error);
     }

@@ -4,6 +4,7 @@ import Slider from '@react-native-community/slider';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import Button from '@/components/common/Button';
+import { uploadBase64Image } from '@/utils/StorageUtils';
 
 type SliderMenuParams = {
   title: string;
@@ -106,10 +107,11 @@ const SliderMenu: React.FC = () => {
     
     if (!result.canceled && result.assets?.length > 0) {
       const imageBase64 = result.assets[0].base64
+      const UrlToBase64Image = await uploadBase64Image(imageBase64 ?? "")
   
       setItems((prevItems) => {
         const newItems = [...prevItems];
-        newItems[index].images = [imageBase64 ?? ''];
+        newItems[index].images = [UrlToBase64Image ?? ''];
         return newItems;
       });
     }

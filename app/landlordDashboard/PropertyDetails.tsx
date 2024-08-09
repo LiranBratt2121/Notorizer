@@ -13,6 +13,7 @@ import { doc, setDoc, collection } from "firebase/firestore";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import Button from "../../components/common/Button";
 import { db, auth } from "../../firebaseConfig";
+import encodePath from "@/utils/EncodeFireBaseStorageURL";
 
 type LocalSearchParams = {
   updatedFormData?: string;
@@ -43,18 +44,18 @@ type Address = {
 };
 
 type LandlordVerificationData = {
-  idImageBase64: string | null;
-  ownershipImageBase64: string | null;
-  houseImageBase64: string | null;
+  idImageUrl: string | null;
+  ownershipImageUrl: string | null;
+  houseImageUrl: string | null;
 };
 
 const PropertyDetails: React.FC = () => {
   const router = useRouter();
   const [landlordVerificationData, setLandlordVerificationData] =
     useState<LandlordVerificationData>({
-      idImageBase64: null,
-      ownershipImageBase64: null,
-      houseImageBase64: null,
+      idImageUrl: null,
+      ownershipImageUrl: null,
+      houseImageUrl: null,
     });
   const [formData, setFormData] = useState<FormData>({
     bedrooms: [],
@@ -78,10 +79,47 @@ const PropertyDetails: React.FC = () => {
 
   useEffect(() => {
     if (updatedFormData) {
-      setFormData(JSON.parse(updatedFormData));
+      const parsedFormData: FormData = JSON.parse(updatedFormData);
+      const decodedFormData: FormData = {
+        bedrooms: parsedFormData.bedrooms.map((room) => ({
+          ...room,
+          images: room.images.map(encodePath),
+        })),
+        bathrooms: parsedFormData.bathrooms.map((room) => ({
+          ...room,
+          images: room.images.map(encodePath),
+        })),
+        kitchen: parsedFormData.kitchen.map((room) => ({
+          ...room,
+          images: room.images.map(encodePath),
+        })),
+        livingRooms: parsedFormData.livingRooms.map((room) => ({
+          ...room,
+          images: room.images.map(encodePath),
+        })),
+        externalView: parsedFormData.externalView.map((room) => ({
+          ...room,
+          images: room.images.map(encodePath),
+        })),
+        addRooms: parsedFormData.addRooms.map((room) => ({
+          ...room,
+          images: room.images.map(encodePath),
+        })),
+        addExternalSpace: parsedFormData.addExternalSpace.map((room) => ({
+          ...room,
+          images: room.images.map(encodePath),
+        })),
+      };
+      setFormData(decodedFormData);
     }
     if (verificationData) {
-      setLandlordVerificationData(JSON.parse(verificationData));
+      const parsedVerifactionData: LandlordVerificationData = JSON.parse(verificationData);
+      const decodedVerifactionData: LandlordVerificationData = {
+        idImageUrl: encodePath(parsedVerifactionData.idImageUrl ?? ""),
+        ownershipImageUrl: encodePath(parsedVerifactionData.ownershipImageUrl ?? ""),
+        houseImageUrl: encodePath(parsedVerifactionData.houseImageUrl ?? ""),
+      }
+      setLandlordVerificationData(decodedVerifactionData);
     }
   }, [updatedFormData, verificationData]);
 
@@ -113,11 +151,10 @@ const PropertyDetails: React.FC = () => {
       return;
     }
 
-    console.log(landlordVerificationData.ownershipImageBase64)
     if (
-      !landlordVerificationData.idImageBase64 ||
-      !landlordVerificationData.ownershipImageBase64 ||
-      !landlordVerificationData.houseImageBase64
+      !landlordVerificationData.idImageUrl ||
+      !landlordVerificationData.ownershipImageUrl ||
+      !landlordVerificationData.houseImageUrl
     ) {
       Alert.alert("Error", "Please provide ID, ownership, and house images");
       return;
@@ -142,12 +179,14 @@ const PropertyDetails: React.FC = () => {
         "property"
       );
 
+      console.log("PROPERTY DEATAILS LANDLORD", landlordVerificationData)
+
       await setDoc(doc(propertyCollectionRef, formattedAddress), {
         ...formData,
         landlordVerificationData: {
-          idImageBase64: landlordVerificationData.idImageBase64,
-          ownershipImageBase64: landlordVerificationData.ownershipImageBase64,
-          houseImageBase64: landlordVerificationData.houseImageBase64,
+          idImageUrl: landlordVerificationData.idImageUrl,
+          ownershipImageUrl: landlordVerificationData.ownershipImageUrl,
+          houseImageUrl: landlordVerificationData.houseImageUrl,
         },
       });
 

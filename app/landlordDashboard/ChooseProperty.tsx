@@ -5,10 +5,26 @@ import PropertyCard from '@/components/common/PropertyCard';
 import { collection, getDocs, doc } from 'firebase/firestore';
 import { db, auth } from "../../firebaseConfig";
 
+type LandlordVerificationData = {
+  idImageBase64: string | null;
+  ownershipImageBase64: string | null;
+  houseImageBase64: string | null;
+};
+
+type Data = {
+  addExternalSpace?: {images: string[], name: string}
+  addRooms?: {images: string[], name: string}
+  bedrooms?: {images: string[], name: string}
+  externalView?: {images: string[], name: string}
+  kitchen?: {images: string[], name: string}
+  landlordVerificationData: LandlordVerificationData
+  livingRoom?: {images: string[], name: string}
+}
+
 interface Property {
   id: string;
   address: string;
-  data: any;
+  data: Data;
 }
 
 const ChooseProperty: React.FC = () => {
@@ -32,9 +48,8 @@ const ChooseProperty: React.FC = () => {
         const querySnapshot = await getDocs(propertyCollectionRef);
         const fetchedProperties: Property[] = querySnapshot.docs.map(doc => ({
           id: doc.id,
-          address: doc.id,
-          imageUri: doc.data().landlordVerificationData?.houseImageUri || '',
-          data: doc.data()
+          address: doc.id, // address = doc.id in firebase.
+          data: doc.data() as Data
         }));
         setProperties(fetchedProperties);
       } catch (error) {
@@ -52,15 +67,19 @@ const ChooseProperty: React.FC = () => {
     fetchProperties();
   }, []);
 
-  const renderItem = ({ item }: { item: Property }) => (
-    <PropertyCard
-      key={item.id}
-      property={item.address}
-      imageUri={item.data.imageUri}
-      onPress={() => router.push({ pathname: 'propertyDetails', params: { propertyId: item.id } })}
-    />
-  );
-
+  const renderItem = ({ item }: { item: Property }) => {
+    const base64Image = item.data.landlordVerificationData.houseImageBase64;
+  
+    return (
+      <PropertyCard
+        key={item.address}
+        property={item.address}
+        imageUri={`data:image/jpeg;base64,${base64Image}`}
+        onPress={() => router.push({ pathname: 'propertyDetails', params: { propertyId: item.address } })}
+      />
+    );
+  };
+  
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>

@@ -66,7 +66,7 @@ const SignUp: React.FC = () => {
         name: formData.name,
         email: formData.email,
         password: formData.password,
-        confirmPassword: formData.confirmPassword, // Pass confirmPassword
+        confirmPassword: formData.confirmPassword
       },
     });
   };
@@ -108,7 +108,7 @@ const SignUp: React.FC = () => {
     { label: "User Name", key: "name", secureTextEntry: false },
     { label: "Password", key: "password", secureTextEntry: true },
     { label: "Confirm Password", key: "confirmPassword", secureTextEntry: true },
-    { label: "Full Name", key: "fullName", secureTextEntry: false }, // Added Full Name input
+    { label: "Full Name", key: "fullName", secureTextEntry: false },
   ];
 
   return (

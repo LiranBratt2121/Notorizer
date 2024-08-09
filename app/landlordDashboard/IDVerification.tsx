@@ -18,15 +18,15 @@ type LocalSearchParams = {
 };
 
 type ImageData = {
-  idImage: string | null;
-  ownershipImage: string | null;
-  houseImage: string | null;
+  idImageBase64: string | null;
+  ownershipImageBase64: string | null;
+  houseImageBase64: string | null;
 };
 
 const imageTypes: { key: keyof ImageData; title: string }[] = [
-  { key: "idImage", title: "ID" },
-  { key: "ownershipImage", title: "Ownership" },
-  { key: "houseImage", title: "House" },
+  { key: "idImageBase64", title: "ID" },
+  { key: "ownershipImageBase64", title: "Ownership" },
+  { key: "houseImageBase64", title: "House" },
 ];
 
 const IDVerification: React.FC = () => {
@@ -34,9 +34,9 @@ const IDVerification: React.FC = () => {
   const { formData, returnPath } = useLocalSearchParams<LocalSearchParams>();
 
   const [images, setImages] = useState<ImageData>({
-    idImage: null,
-    ownershipImage: null,
-    houseImage: null,
+    idImageBase64: null,
+    ownershipImageBase64: null,
+    houseImageBase64: null,
   });
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -53,9 +53,9 @@ const IDVerification: React.FC = () => {
       base64: true,
     });
 
-    if (!result.canceled && result.assets && result.assets.length > 0) {
-      const imageBase64 = result.assets[0].base64;
 
+    if (result.assets) {
+      const imageBase64 = result.assets[0].base64;
       setImages((prevImages) => ({
         ...prevImages,
         [imageType]: imageBase64 ?? null,
@@ -71,15 +71,11 @@ const IDVerification: React.FC = () => {
 
     setLoading(true);
 
-    const verificationData = JSON.stringify(images);
-
-    console.log("Sending data back:", { formData, verificationData });
-
     router.replace({
       pathname: returnPath || "",
       params: {
         updatedFormData: formData,
-        verificationData,
+        verificationData: JSON.stringify(images)
       },
     });
 

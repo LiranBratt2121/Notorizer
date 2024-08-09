@@ -23,6 +23,12 @@ const RootLayout = () => {
         }}
       />
       <Stack.Screen
+        name="account/SignUpUserAgreement"
+        options={{
+          headerTitle: "User Agreement",
+        }}
+      />
+      <Stack.Screen
         name="landlordDashboard"
         options={{
           headerShown: false,

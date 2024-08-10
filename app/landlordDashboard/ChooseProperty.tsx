@@ -4,28 +4,8 @@ import React, { useEffect, useState } from 'react';
 import PropertyCard from '@/components/common/PropertyCard';
 import { collection, getDocs, doc } from 'firebase/firestore';
 import { db, auth } from "../../firebaseConfig";
+import { Data, Property } from '@/types/common/Household';
 
-type LandlordVerificationData = {
-  idImageUrl: string | null;
-  ownershipImageUrl: string | null;
-  houseImageUrl: string | null;
-};
-
-type Data = {
-  addExternalSpace?: {images: string[], name: string}
-  addRooms?: {images: string[], name: string}
-  bedrooms?: {images: string[], name: string}
-  externalView?: {images: string[], name: string}
-  kitchen?: {images: string[], name: string}
-  landlordVerificationData: LandlordVerificationData
-  livingRoom?: {images: string[], name: string}
-}
-
-interface Property {
-  id: string;
-  address: string;
-  data: Data;
-}
 
 const ChooseProperty: React.FC = () => {
   const [properties, setProperties] = useState<Property[]>([]);
@@ -75,7 +55,7 @@ const ChooseProperty: React.FC = () => {
         key={item.address}
         property={item.address}
         imageUri={url ?? ""}
-        onPress={() => router.push({ pathname: 'propertyDetails', params: { propertyId: item.address } })}
+        onPress={() => router.push({ pathname: 'landlordDashboard/PreviewHouse', params: { propertyString: JSON.stringify(item) } })}
       />
     );
   };

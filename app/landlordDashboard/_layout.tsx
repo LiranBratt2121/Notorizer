@@ -24,6 +24,12 @@ const LandlordDashboardLayout = () => {
         }}
       />
       <Stack.Screen
+        name="PreviewHouse"
+        options={{
+          headerTitle: "Preview House",
+        }}
+      />
+      <Stack.Screen
         name="SliderMenuScreen"
         options={{
           headerTitle: "Adjust Details",

@@ -13,26 +13,16 @@ import { doc, setDoc, collection } from "firebase/firestore";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import Button from "../../components/common/Button";
 import { db, auth } from "../../firebase/FirebaseConfig";
+import {
+  FormData,
+  LandlordVerificationData,
+  PropetryDetailsFirebaseType,
+} from "@/types/PropertyDetailsTypes";
 import encodePath from "@/utils/EncodeFireBaseStorageURL";
 
 type LocalSearchParams = {
   updatedFormData?: string;
   verificationData?: string;
-};
-
-type RoomData = {
-  name: string;
-  images: string[];
-};
-
-type FormData = {
-  bedrooms: RoomData[];
-  bathrooms: RoomData[];
-  kitchen: RoomData[];
-  livingRooms: RoomData[];
-  externalView: RoomData[];
-  addRooms: RoomData[];
-  addExternalSpace: RoomData[];
 };
 
 type Address = {
@@ -41,12 +31,6 @@ type Address = {
   street: string;
   houseNumber: string;
   apartmentEntry: string;
-};
-
-type LandlordVerificationData = {
-  idImageUrl: string | null;
-  ownershipImageUrl: string | null;
-  houseImageUrl: string | null;
 };
 
 const PropertyDetails: React.FC = () => {
@@ -75,7 +59,8 @@ const PropertyDetails: React.FC = () => {
   });
   const [loading, setLoading] = useState<boolean>(false);
 
-  const { updatedFormData, verificationData } = useLocalSearchParams<LocalSearchParams>();
+  const { updatedFormData, verificationData } =
+    useLocalSearchParams<LocalSearchParams>();
 
   useEffect(() => {
     if (updatedFormData) {
@@ -83,42 +68,45 @@ const PropertyDetails: React.FC = () => {
       const decodedFormData: FormData = {
         bedrooms: parsedFormData.bedrooms.map((room) => ({
           ...room,
-          images: room.images.map(encodePath),
+          images: room.images?.map(encodePath),
         })),
         bathrooms: parsedFormData.bathrooms.map((room) => ({
           ...room,
-          images: room.images.map(encodePath),
+          images: room.images?.map(encodePath),
         })),
         kitchen: parsedFormData.kitchen.map((room) => ({
           ...room,
-          images: room.images.map(encodePath),
+          images: room.images?.map(encodePath),
         })),
         livingRooms: parsedFormData.livingRooms.map((room) => ({
           ...room,
-          images: room.images.map(encodePath),
+          images: room.images?.map(encodePath),
         })),
         externalView: parsedFormData.externalView.map((room) => ({
           ...room,
-          images: room.images.map(encodePath),
+          images: room.images?.map(encodePath),
         })),
         addRooms: parsedFormData.addRooms.map((room) => ({
           ...room,
-          images: room.images.map(encodePath),
+          images: room.images?.map(encodePath),
         })),
         addExternalSpace: parsedFormData.addExternalSpace.map((room) => ({
           ...room,
-          images: room.images.map(encodePath),
+          images: room.images?.map(encodePath),
         })),
       };
       setFormData(decodedFormData);
     }
     if (verificationData) {
-      const parsedVerifactionData: LandlordVerificationData = JSON.parse(verificationData);
+      const parsedVerifactionData: LandlordVerificationData =
+        JSON.parse(verificationData);
       const decodedVerifactionData: LandlordVerificationData = {
         idImageUrl: encodePath(parsedVerifactionData.idImageUrl ?? ""),
-        ownershipImageUrl: encodePath(parsedVerifactionData.ownershipImageUrl ?? ""),
+        ownershipImageUrl: encodePath(
+          parsedVerifactionData.ownershipImageUrl ?? ""
+        ),
         houseImageUrl: encodePath(parsedVerifactionData.houseImageUrl ?? ""),
-      }
+      };
       setLandlordVerificationData(decodedVerifactionData);
     }
   }, [updatedFormData, verificationData]);
@@ -179,16 +167,17 @@ const PropertyDetails: React.FC = () => {
         "property"
       );
 
-      console.log("PROPERTY DEATAILS LANDLORD", landlordVerificationData)
+      console.log("PROPERTY DEATAILS LANDLORD", landlordVerificationData);
 
-      await setDoc(doc(propertyCollectionRef, formattedAddress), {
+      const toFirestore: PropetryDetailsFirebaseType = {
         ...formData,
         landlordVerificationData: {
           idImageUrl: landlordVerificationData.idImageUrl,
           ownershipImageUrl: landlordVerificationData.ownershipImageUrl,
           houseImageUrl: landlordVerificationData.houseImageUrl,
         },
-      });
+      };
+      await setDoc(doc(propertyCollectionRef, formattedAddress), toFirestore);
 
       Alert.alert("Success", "Property details saved successfully");
       router.push("/landlordDashboard/dashboard");

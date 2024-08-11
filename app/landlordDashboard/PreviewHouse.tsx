@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Image, StyleSheet, ScrollView, Dimensions, TextInput, Alert, ActivityIndicator } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { View, Text, Image, StyleSheet, ScrollView, Dimensions, TextInput, Alert, ActivityIndicator, TouchableOpacity } from "react-native";
+import { router, useLocalSearchParams } from "expo-router";
 import { Property, Data, RoomData } from "@/types/common/Household";
 import encodePath, { encodeLandlordVerificationData } from "@/utils/EncodeFireBaseStorageURL";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, setDoc, updateDoc } from "firebase/firestore";
 import { db, auth } from "../../firebase/FirebaseConfig";
 import Button from "@/components/common/Button";
+import { PropetryDetailsFirebaseType } from "@/types/PropertyDetailsTypes";
 
-const { width } = Dimensions.get("window");
+const windowWidth = Dimensions.get("window").width;
 
 const PreviewHouse: React.FC = () => {
   const { propertyString } = useLocalSearchParams();
@@ -50,11 +51,28 @@ const PreviewHouse: React.FC = () => {
     const landlordId = user.uid;
     const propertyDocRef = doc(db, "landlordUser", landlordId, "property", property.id);
 
+    const toSave: PropetryDetailsFirebaseType = {
+      bedrooms: Array.isArray(property.data.bedrooms) ? property.data.bedrooms : [property.data.bedrooms ?? { images: [], name: "" }],
+      bathrooms: Array.isArray(property.data.bathrooms) ? property.data.bathrooms : [property.data.bathrooms ?? { images: [], name: "" }],
+      kitchen: Array.isArray(property.data.kitchen) ? property.data.kitchen : [property.data.kitchen ?? { images: [], name: "" }],
+      livingRooms: Array.isArray(property.data.livingRooms) ? property.data.livingRooms : [property.data.livingRooms ?? { images: [], name: "" }],
+      externalView: Array.isArray(property.data.externalView) ? property.data.externalView : [property.data.externalView ?? { images: [], name: "" }],
+      addRooms: Array.isArray(property.data.addRooms) ? property.data.addRooms : [property.data.addRooms ?? { images: [], name: "" }],
+      addExternalSpace: Array.isArray(property.data.addExternalSpace) ? property.data.addExternalSpace : [property.data.addExternalSpace ?? { images: [], name: "" }],
+      landlordVerificationData: {
+        idImageUrl: property.data.landlordVerificationData?.idImageUrl ?? null,
+        ownershipImageUrl: property.data.landlordVerificationData?.ownershipImageUrl ?? null,
+        houseImageUrl: property.data.landlordVerificationData?.houseImageUrl ?? null
+      },
+      tenantInfo: {
+        name: property.data.tenantInfo?.name ?? "",
+        number: property.data.tenantInfo?.number ?? "",
+        houseImages: Array.isArray(property.data.tenantInfo?.houseImages) ? property.data.tenantInfo.houseImages : []
+      }
+    };
+
     try {
-      await updateDoc(propertyDocRef, {
-        address: property.address,
-        data: property.data,
-      });
+      await setDoc(propertyDocRef, toSave);
       Alert.alert("Success", "Property details updated successfully");
       setIsEditing(false);
     } catch (error) {
@@ -70,8 +88,26 @@ const PreviewHouse: React.FC = () => {
     setIsEditing(false);
   };
 
-  const handleAddressChange = (newAddress: string) => {
-    setProperty(prev => ({ ...prev, address: newAddress }));
+  const handleRemoveTenant = async () => {
+    const user = auth.currentUser;
+    if (!user) {
+      Alert.alert("Error", "User is not authenticated");
+      return;
+    }
+
+    const landlordId = user.uid;
+    const propertyDocRef = doc(db, "landlordUser", landlordId, "property", property.id);
+
+    try {
+      await updateDoc(propertyDocRef, {
+        tenantInfo: null // Remove tenant information
+      });
+      setProperty(prev => ({ ...prev, data: { ...prev.data, tenantInfo: null } }));
+      Alert.alert("Success", "Tenant removed successfully");
+    } catch (error) {
+      console.error("Error removing tenant: ", error);
+      Alert.alert("Error", "Failed to remove tenant");
+    }
   };
 
   const handleRoomNameChange = (categoryKey: string, index: number, newName: string) => {
@@ -113,16 +149,31 @@ const PreviewHouse: React.FC = () => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {isEditing ? (
-          <TextInput
-            style={styles.input}
-            value={property.address}
-            onChangeText={handleAddressChange}
-          />
-        ) : (
-          <Text style={styles.header}>{property.address} Preview</Text>
-        )}
-        
+        <Text style={styles.header}>{property.address} Preview</Text>
+  
+        <View style={styles.section}>
+          <Text style={styles.sectionHeader}>Tenant Information</Text>
+          {property.data.tenantInfo ? (
+            <>
+              <Text style={styles.infoValue}>Name: {property.data.tenantInfo.name}</Text>
+              <Text style={styles.infoValue}>Number: {property.data.tenantInfo.number}</Text>
+              {isEditing && (
+                <TouchableOpacity onPress={handleRemoveTenant}>
+                  <Text style={styles.removeButton}>Remove Tenant</Text>
+                </TouchableOpacity>
+              )}
+            </>
+          ) : (
+            <Button
+              title="Add Tenant"
+              onPress={() => router.navigate({
+                pathname: "/landlordDashboard/AddTenant",
+                params: { houseAddr: property.address },
+              })}
+            />
+          )}
+        </View>
+  
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>Verification Images</Text>
           {images.map((image) => (
@@ -132,7 +183,7 @@ const PreviewHouse: React.FC = () => {
             </View>
           ))}
         </View>
-
+  
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>House Information</Text>
           {houseInfo.map((info) => (
@@ -146,16 +197,16 @@ const PreviewHouse: React.FC = () => {
             </View>
           ))}
         </View>
-
+  
         {isEditing ? (
           <View style={styles.buttonContainer}>
-            <Button title="Save" onPress={handleSave} />
             <Button title="Cancel" onPress={handleCancel} />
+            <Button title="Save" onPress={handleSave} />
           </View>
         ) : (
           <Button title="Edit" onPress={handleEdit} />
         )}
-
+  
         {isLoading && (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#0000ff" />
@@ -238,7 +289,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   roomImage: {
-    width: width * 0.6,
+    width: windowWidth * 0.6,
     height: 150,
     resizeMode: "cover",
     borderRadius: 8,
@@ -265,6 +316,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.7)',
+  },
+  removeButton: {
+    color: 'red',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginTop: 10,
   },
 });
 

@@ -15,7 +15,7 @@ const AddTenant = () => {
   const [landlordName, setLandlordName] = useState<string>("Landlord");
   const [data, setData] = useState<Tenant>({
     name: "",
-    phoneNumber: "",
+    number: "",
   });
 
   useEffect(() => {
@@ -68,7 +68,7 @@ this is your OTP **${generateOTP()}**\nuse it when logging in as a tenant!`,
     }
 
     try {
-      await SendSMS(data.phoneNumber, inviteMessage);
+      await SendSMS(data.number, inviteMessage);
       const collectionPath = `landlordUser/${auth.currentUser?.uid}/property`;
       const id =
         (await findDocumentIdByName(collectionPath, houseAddr.trim())) ?? "";
@@ -77,7 +77,7 @@ this is your OTP **${generateOTP()}**\nuse it when logging in as a tenant!`,
         return;
       }
 
-      const tenantInfo = { name: data.name, number: data.phoneNumber };
+      const tenantInfo = { name: data.name, number: data.number };
 
       await updateDoc(
         doc(db, "landlordUser", auth.currentUser?.uid ?? "", "property", id), {tenantInfo}

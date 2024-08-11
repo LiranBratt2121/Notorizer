@@ -58,5 +58,8 @@ export type TenantHouseImages = {
 export type Tenant = {
   name: string;
   number: string;
-  houseImages?: TenantHouseImages
+  houseImages?: TenantHouseImages;
+  otp?: string;
+  landlordId?: string;
+  houseAddress?: string;
 };

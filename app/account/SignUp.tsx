@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { SafeAreaView, View, StyleSheet, Alert } from "react-native";
+import { SafeAreaView, View, StyleSheet, Alert, KeyboardTypeOptions, TextInputProps } from "react-native";
 import Input from "../../components/common/Input";
 import Button from "../../components/common/Button";
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -104,11 +104,11 @@ const SignUp: React.FC = () => {
   };
 
   const inputFields = [
-    { label: "Email", key: "email", secureTextEntry: false },
-    { label: "User Name", key: "name", secureTextEntry: false },
-    { label: "Password", key: "password", secureTextEntry: true },
-    { label: "Confirm Password", key: "confirmPassword", secureTextEntry: true },
-    { label: "Full Name", key: "fullName", secureTextEntry: false },
+    { label: "Email", key: "email", secureTextEntry: false, keyboardType: "email-address", autoCapitalize: "none" },
+    { label: "User Name", key: "name", secureTextEntry: false, keyboardType: "default", autoCapitalize: "sentences" },
+    { label: "Password", key: "password", secureTextEntry: true, keyboardType: "default", autoCapitalize: "none" },
+    { label: "Confirm Password", key: "confirmPassword", secureTextEntry: true, keyboardType: "default", autoCapitalize: "none" },
+    { label: "Full Name", key: "fullName", secureTextEntry: false, keyboardType: "default", autoCapitalize: "sentences" },
   ];
 
   return (
@@ -119,6 +119,8 @@ const SignUp: React.FC = () => {
             key={field.key}
             label={field.label}
             secureTextEntry={field.secureTextEntry}
+            keyboardType={field.keyboardType as KeyboardTypeOptions}
+            autoCapitalize={field.autoCapitalize as TextInputProps["autoCapitalize"]}
             onChangeText={(value) =>
               handleInputChange(field.key as keyof SignUpInfo, value)
             }

@@ -1,5 +1,5 @@
 import { getDownloadURL, ref, uploadBytes, uploadString } from "firebase/storage";
-import { storage } from "../firebaseConfig";
+import { storage } from "../firebase/FirebaseConfig";
 import CryptoJS from 'crypto-js';
 
 // Function to generate a unique file name

@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import PropertyCard from '@/components/common/PropertyCard';
 import { collection, getDocs, doc } from 'firebase/firestore';
-import { db, auth } from "../../firebaseConfig";
+import { db, auth } from "../../firebase/FirebaseConfig";
 import { Data, Property } from '@/types/common/Household';
 
 

@@ -5,7 +5,7 @@ import { Property, Data, RoomData } from "@/types/common/Household";
 import encodePath, { encodeLandlordVerificationData } from "@/utils/EncodeFireBaseStorageURL";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { doc, updateDoc } from "firebase/firestore";
-import { db, auth } from "@/firebaseConfig";
+import { db, auth } from "../../firebase/FirebaseConfig";
 import Button from "@/components/common/Button";
 
 const { width } = Dimensions.get("window");

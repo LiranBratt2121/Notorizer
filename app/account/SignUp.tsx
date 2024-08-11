@@ -3,7 +3,7 @@ import { SafeAreaView, View, StyleSheet, Alert } from "react-native";
 import Input from "../../components/common/Input";
 import Button from "../../components/common/Button";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import { db, auth } from "../../firebaseConfig";
+import { db, auth } from "../../firebase/FirebaseConfig";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { collection, doc, setDoc } from "firebase/firestore";
 

@@ -12,7 +12,7 @@ import {
 import { doc, setDoc, collection } from "firebase/firestore";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import Button from "../../components/common/Button";
-import { db, auth } from "../../firebaseConfig";
+import { db, auth } from "../../firebase/FirebaseConfig";
 import encodePath from "@/utils/EncodeFireBaseStorageURL";
 
 type LocalSearchParams = {

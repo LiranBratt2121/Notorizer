@@ -60,9 +60,9 @@ const PreviewHouse: React.FC = () => {
       addRooms: Array.isArray(property.data.addRooms) ? property.data.addRooms : [property.data.addRooms ?? { images: [], name: "" }],
       addExternalSpace: Array.isArray(property.data.addExternalSpace) ? property.data.addExternalSpace : [property.data.addExternalSpace ?? { images: [], name: "" }],
       landlordVerificationData: {
-        idImageUrl: property.data.landlordVerificationData?.idImageUrl ?? null,
-        ownershipImageUrl: property.data.landlordVerificationData?.ownershipImageUrl ?? null,
-        houseImageUrl: property.data.landlordVerificationData?.houseImageUrl ?? null
+        idImageUrl: encodePath(property.data.landlordVerificationData?.idImageUrl ?? "") ?? null,
+        ownershipImageUrl: encodePath(property.data.landlordVerificationData?.ownershipImageUrl ?? "") ?? null,
+        houseImageUrl: encodePath(property.data.landlordVerificationData?.houseImageUrl ?? "") ?? null
       },
       tenantInfo: {
         name: property.data.tenantInfo?.name ?? "",

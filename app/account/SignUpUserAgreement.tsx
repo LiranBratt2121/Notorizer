@@ -76,7 +76,6 @@ const SignUpUserAgreement = () => {
       <Input
         label="Legal Full Name"
         placeholder="Enter your full name"
-        value={fullName}
         onChangeText={setFullName}
         style={styles.input}
       />

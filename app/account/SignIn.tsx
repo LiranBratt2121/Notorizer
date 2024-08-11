@@ -28,7 +28,7 @@ const SignIn: React.FC = () => {
     try {
       console.log('Trying to sign in user: ', formData.email, formData.password)
       await signInWithEmailAndPassword(auth, formData.email, formData.password);
-      router.replace('landlordDashboard/dashboard');
+      router.replace('/landlordDashboard/dashboard');
     } catch (error) {
       if (error instanceof Error) {
         Alert.alert("Error", error.message);

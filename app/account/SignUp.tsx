@@ -61,7 +61,7 @@ const SignUp: React.FC = () => {
 
   const handleSignatureButton = () => {
     router.push({
-      pathname: "account/SignUpUserAgreement",
+      pathname: "/account/SignUpUserAgreement",
       params: {
         name: formData.name,
         email: formData.email,
@@ -92,7 +92,7 @@ const SignUp: React.FC = () => {
       });
 
       Alert.alert("Success", `User, ${formData.name} registered successfully`);
-      router.push("landlordDashboard/dashboard");
+      router.push("/landlordDashboard/dashboard");
     } catch (error) {
       if (error instanceof Error) {
         Alert.alert("Error", error.message);

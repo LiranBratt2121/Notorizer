@@ -25,7 +25,7 @@ const AddTenant = () => {
 
   const handleSubmit = () => {
     router.replace({
-      pathname: 'landlordDashboard/dashboard'
+      pathname: '/landlordDashboard/dashboard'
     })
   };
 

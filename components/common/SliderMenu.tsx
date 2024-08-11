@@ -89,7 +89,7 @@ const SliderMenu: React.FC = () => {
 
     if (returnPath) {
       router.replace({
-        pathname: returnPath,
+        pathname: returnPath as any,
         params: { items: JSON.stringify(items), optionKey, updatedFormData: JSON.stringify(updatedFormData) },
       });
     } else {

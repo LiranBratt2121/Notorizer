@@ -76,7 +76,7 @@ const IDVerification: React.FC = () => {
     console.log("ID VERIFACTION LANDLORD", images);
 
     router.replace({
-      pathname: returnPath || "",
+      pathname: returnPath as any || "",
       params: {
         updatedFormData: formData,
         verificationData: JSON.stringify(images)

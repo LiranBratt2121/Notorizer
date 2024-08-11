@@ -24,7 +24,7 @@ const SignUpUserAgreement = () => {
   useEffect(() => {
     if (signature) {
       router.replace({
-        pathname: "account/SignUp",
+        pathname: "/account/SignUp",
         params: { signature, fullName, isAgreed: isAgreed.toString(), email, password, name, confirmPassword },
       });
     }

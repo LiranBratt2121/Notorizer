@@ -55,7 +55,7 @@ const ChooseProperty: React.FC = () => {
         key={item.address}
         property={item.address}
         imageUri={url ?? ""}
-        onPress={() => router.push({ pathname: 'landlordDashboard/PreviewHouse', params: { propertyString: JSON.stringify(item) } })}
+        onPress={() => router.push({ pathname: '/landlordDashboard/PreviewHouse', params: { propertyString: JSON.stringify(item) } })}
       />
     );
   };

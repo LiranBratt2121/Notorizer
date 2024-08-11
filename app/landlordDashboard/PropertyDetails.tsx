@@ -125,7 +125,7 @@ const PropertyDetails: React.FC = () => {
 
   const handleButtonPress = (title: string, optionKey: string) => {
     router.push({
-      pathname: "landlordDashboard/SliderMenuScreen",
+      pathname: "/landlordDashboard/SliderMenuScreen",
       params: {
         title,
         optionKey,
@@ -137,7 +137,7 @@ const PropertyDetails: React.FC = () => {
 
   const handleVerifyPress = () => {
     router.push({
-      pathname: "landlordDashboard/IDVerification",
+      pathname: "/landlordDashboard/IDVerification",
       params: {
         formData: JSON.stringify(formData),
         returnPath: "landlordDashboard/PropertyDetails",
@@ -191,7 +191,7 @@ const PropertyDetails: React.FC = () => {
       });
 
       Alert.alert("Success", "Property details saved successfully");
-      router.push("landlordDashboard/dashboard");
+      router.push("/landlordDashboard/dashboard");
     } catch (error) {
       if (error instanceof Error) {
         Alert.alert("Error", error.message);

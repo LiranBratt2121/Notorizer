@@ -3,7 +3,7 @@ import { StyleSheet, SafeAreaView, View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db, auth } from "@/firebase/FirebaseConfig";
 import { Tenant } from "@/types/common/Household";
 import SendSMS, { generateOTP } from "@/utils/SendSms";
@@ -42,10 +42,12 @@ const AddTenant = () => {
     fetchLandlordName();
   }, []);
 
+  const otp = useMemo(() => generateOTP(), [landlordName]);
+
   const inviteMessage = useMemo(
     () =>
       `Hi! ${landlordName}, your landlord sent you an invitation to notorizer!\n
-this is your OTP **${generateOTP()}**\nuse it when logging in as a tenant!`,
+this is your OTP **${otp}**\n and this is your provided name: **${data.name}**use it when logging in as a tenant!`,
     [landlordName]
   );
 
@@ -70,8 +72,7 @@ this is your OTP **${generateOTP()}**\nuse it when logging in as a tenant!`,
     try {
       await SendSMS(data.number, inviteMessage);
       const collectionPath = `landlordUser/${auth.currentUser?.uid}/property`;
-      const id =
-        (await findDocumentIdByName(collectionPath, houseAddr.trim())) ?? "";
+      const id = (await findDocumentIdByName(collectionPath, houseAddr.trim())) ?? "";
       if (!id) {
         alert("Address not found. Please check the address format.");
         return;
@@ -91,6 +92,7 @@ this is your OTP **${generateOTP()}**\nuse it when logging in as a tenant!`,
       );
 
       await setDoc(doc(db, "tenantUser", data.name), { tenantInfo });
+
       router.replace({
         pathname: "/landlordDashboard/dashboard",
       });

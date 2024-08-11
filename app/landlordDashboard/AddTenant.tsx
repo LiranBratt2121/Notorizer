@@ -48,7 +48,7 @@ const AddTenant = () => {
     () =>
       `Hi! ${landlordName}, your landlord sent you an invitation to notorizer!\n
 this is your OTP **${otp}**\n and this is your provided name: **${data.name}**use it when logging in as a tenant!`,
-    [landlordName]
+    [landlordName, data.name]
   );
 
   const handleChanges = (key: string, value: string) => {

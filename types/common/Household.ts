@@ -57,6 +57,6 @@ export type TenantHouseImages = {
 
 export type Tenant = {
   name: string;
-  phoneNumber: string;
+  number: string;
   houseImages?: TenantHouseImages
 };

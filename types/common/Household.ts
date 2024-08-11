@@ -62,4 +62,5 @@ export type Tenant = {
   otp?: string;
   landlordId?: string;
   houseAddress?: string;
+  password?: string;
 };

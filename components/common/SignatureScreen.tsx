@@ -1,7 +1,13 @@
 // @ts-nocheck
 // Credit to https://stackoverflow.com/questions/49396883/how-can-i-do-signature-capture-in-react-native#:~:text=Signature%20component%20code
 import React, { useState, useRef } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+} from "react-native";
 import ExpoDraw from "expo-draw";
 import { captureRef as takeSnapshotAsync } from "react-native-view-shot";
 import { uploadBase64Image } from "@/utils/StorageUtils";
@@ -12,8 +18,9 @@ interface SignatureScreenProps {
   handleSave: (path: string) => void;
 }
 
-const SignatureScreen = ({handleSave}: SignatureScreenProps) => {
+const SignatureScreen = ({ handleSave }: SignatureScreenProps) => {
   const [strokes, setStrokes] = useState([]);
+  const [loading, setLoading] = useState(false);
   const signatureRef = useRef(null);
 
   const clearCanvas = async () => {
@@ -22,17 +29,20 @@ const SignatureScreen = ({handleSave}: SignatureScreenProps) => {
   };
 
   const saveCanvas = async () => {
+    setLoading(true);
     try {
       const signature_result = await takeSnapshotAsync(signatureRef.current, {
         format: "png",
         quality: 0.5,
         result: "base64",
       });
-      
+
       const downloadUrlToBase64 = await uploadBase64Image(signature_result);
       handleSave(downloadUrlToBase64);
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -50,14 +60,17 @@ const SignatureScreen = ({handleSave}: SignatureScreenProps) => {
           onChangeStrokes={(strokes) => setStrokes(strokes)}
         />
         <View style={styles.buttonsContainer}>
-          <Button onPress={clearCanvas}
-            title="Clear"
-          />
-          <View style={{marginRight: 5}}></View>
-          <Button onPress={saveCanvas}
-            title="Save"
-          />
+          <Button onPress={clearCanvas} title="Clear" />
+          <View style={{ marginRight: 5 }}></View>
+          <Button onPress={saveCanvas} title="Save" />
         </View>
+        {loading && (
+          <ActivityIndicator
+            size="large"
+            color="#0000ff"
+            style={[styles.loadingIndicator, { zIndex: 10 }]}
+          />
+        )}
       </View>
     </View>
   );
@@ -86,6 +99,9 @@ const styles = StyleSheet.create({
   buttonsContainer: {
     flexDirection: "row",
     justifyContent: "space-evenly",
+    marginTop: 20,
+  },
+  loadingIndicator: {
     marginTop: 20,
   },
 });

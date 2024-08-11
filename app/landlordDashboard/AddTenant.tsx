@@ -77,11 +77,20 @@ this is your OTP **${generateOTP()}**\nuse it when logging in as a tenant!`,
         return;
       }
 
-      const tenantInfo = { name: data.name, number: data.number };
+      const tenantInfo = {
+        name: data.name,
+        number: data.number,
+        otp,
+        landlordId: auth.currentUser?.uid,
+        houseAddress: houseAddr.trim(),
+      };
 
       await updateDoc(
-        doc(db, "landlordUser", auth.currentUser?.uid ?? "", "property", id), {tenantInfo}
+        doc(db, "landlordUser", auth.currentUser?.uid ?? "", "property", id),
+        { tenantInfo }
       );
+
+      await setDoc(doc(db, "tenantUser", data.name), { tenantInfo });
       router.replace({
         pathname: "/landlordDashboard/dashboard",
       });

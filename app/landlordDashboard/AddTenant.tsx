@@ -52,7 +52,7 @@ this is your OTP **${generateOTP()}**\nuse it when logging in as a tenant!`,
   const handleChanges = (key: string, value: string) => {
     const keyMap: { [label: string]: keyof Tenant } = {
       "Tenant Name": "name",
-      "Phone Number": "phoneNumber",
+      "Phone Number": "number",
     };
 
     const mappedKey = keyMap[key];

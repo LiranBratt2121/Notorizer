@@ -31,6 +31,7 @@ export type Data = {
   landlordVerificationData: LandlordVerificationData
   livingRooms?: RoomData
   bathrooms?: RoomData
+  tenantInfo?: Tenant
 }
 
 export interface Property {
@@ -38,3 +39,24 @@ export interface Property {
   address: string;
   data: Data;
 }
+
+type Corner = {
+  side: Number;
+  RoomData: RoomData;
+}
+
+export type TenantHouseImages = {
+  addExternalSpace?: Corner[]
+  addRooms?: Corner[]
+  bedrooms?: Corner[]
+  externalView?: Corner[]
+  kitchen?: Corner[]
+  livingRooms?: Corner[]
+  bathrooms?: Corner[]
+}
+
+export type Tenant = {
+  name: string;
+  phoneNumber: string;
+  houseImages?: TenantHouseImages
+};

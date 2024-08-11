@@ -34,6 +34,12 @@ const RootLayout = () => {
           headerShown: false,
         }}
       />
+      <Stack.Screen
+        name="tenantDashboard"
+        options={{
+          headerShown: false,
+        }}
+      />
     </Stack>
   );
 };

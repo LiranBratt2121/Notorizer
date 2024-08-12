@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, Image, StyleSheet, ScrollView, Dimensions, TextInput, Alert, ActivityIndicator, TouchableOpacity } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import { Property, Data, RoomData, Tenant } from "@/types/common/Household";
+import { Property, Data, RoomData, Tenant, TenantProblem } from "@/types/common/Household";
 import encodePath, { encodeLandlordVerificationData } from "@/utils/EncodeFireBaseStorageURL";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { doc, setDoc, updateDoc } from "firebase/firestore";
@@ -24,7 +24,7 @@ const PreviewHouse: React.FC = () => {
   useEffect(() => {
     const fetchTenantData = async () => {
       try {
-        const tenantName = property.data?.tenantInfo?.tenantInfo.name ?? "";
+        const tenantName = property.data?.tenantInfo?.name ?? "";
         if (tenantName) {
           const tenantData = await findTenantByName(tenantName);
           if (tenantData) {
@@ -39,7 +39,7 @@ const PreviewHouse: React.FC = () => {
     };
 
     fetchTenantData();
-  }, [property.data?.tenantInfo?.tenantInfo.name]);
+  }, [property.data?.tenantInfo?.name]);
 
   const images = [
     { key: "houseImage", url: urls.houseImageUrl, title: "House" },
@@ -89,11 +89,11 @@ const PreviewHouse: React.FC = () => {
       },
       tenantInfo: {
         tenantInfo: {
-          name: property.data.tenantInfo?.tenantInfo?.name ?? "",
-          number: property.data.tenantInfo?.tenantInfo?.number ?? "",
-          houseImages: property.data.tenantInfo?.tenantInfo?.houseImages ?? {},
+          name: property.data.tenantInfo?.name ?? "",
+          number: property.data.tenantInfo?.number ?? "",
+          houseImages: property.data.tenantInfo?.houseImages ?? {},
+          problems: property.data.tenantInfo?.problems ?? {} as TenantProblem[]
         },
-        problems: property.data.tenantInfo?.problems ?? []
       }
     };
 
@@ -181,8 +181,8 @@ const PreviewHouse: React.FC = () => {
           <Text style={styles.sectionHeader}>Tenant Information</Text>
           {property.data.tenantInfo ? (
             <>
-              <Text style={styles.infoValue}>Name: {property.data.tenantInfo.tenantInfo.name}</Text>
-              <Text style={styles.infoValue}>Number: {property.data.tenantInfo.tenantInfo.number}</Text>
+              <Text style={styles.infoValue}>Name: {property.data.tenantInfo.name}</Text>
+              <Text style={styles.infoValue}>Number: {property.data.tenantInfo.number}</Text>
               {isEditing && (
                 <TouchableOpacity onPress={handleRemoveTenant}>
                   <Text style={styles.removeButton}>Remove Tenant</Text>
@@ -226,9 +226,9 @@ const PreviewHouse: React.FC = () => {
 
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>Problems</Text>
-          {tenant?.problems && tenant.problems.length > 0 ? (
+          {tenant?.tenantInfo.problems && tenant.tenantInfo.problems.length > 0 ? (
             <RenderProblems
-              problems={tenant?.problems}
+              problems={tenant?.tenantInfo.problems}
             />
           ) : (
             <Text style={styles.infoValue}>No problems reported</Text>

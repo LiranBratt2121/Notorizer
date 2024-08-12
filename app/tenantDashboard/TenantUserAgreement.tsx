@@ -15,7 +15,7 @@ type LocalSearchParams = {
 const TenantUserAgreement = () => {
   const router = useRouter();
   const { tenantInfo }: LocalSearchParams = useLocalSearchParams();
-  const parsedTenantInfo: Tenant = tenantInfo ? JSON.parse(tenantInfo) : null;
+  const parsedTenantInfo: Tenant["tenantInfo"] = tenantInfo ? JSON.parse(tenantInfo) : null;
   const [signature, setSignature] = useState<string | null>(null);
   const [showSignatureScreen, setShowSignatureScreen] = useState(false);
   const [isAgreed, setIsAgreed] = useState(false);
@@ -28,7 +28,7 @@ const TenantUserAgreement = () => {
 
   const handleAgreement = async () => {
     try {
-      const userDocRef = doc(db, "tenantUser", parsedTenantInfo.tenantInfo.name);
+      const userDocRef = doc(db, "tenantUser", parsedTenantInfo.name);
       await updateDoc(userDocRef, {
         tenantInfo: {
           ...parsedTenantInfo,

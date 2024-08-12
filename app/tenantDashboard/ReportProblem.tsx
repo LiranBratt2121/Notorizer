@@ -1,4 +1,11 @@
-import { View, Text, Alert, StyleSheet, Dimensions, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  Alert,
+  StyleSheet,
+  Dimensions,
+  ActivityIndicator,
+} from "react-native";
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Input from "@/components/common/Input";
@@ -28,12 +35,12 @@ const ReportProblem = () => {
     setLoading(true); // Show loader
     try {
       const imageURL = await uploadSvgImage(svgMarkup);
-  
+
       const problem: TenantProblem = {
         description: value,
         imageURL,
       };
-  
+
       const docName = auth.currentUser?.displayName || "";
       const tenantUserRef = doc(db, "tenantUser", docName);
       const tenantDoc = await getDoc(tenantUserRef);
@@ -42,22 +49,28 @@ const ReportProblem = () => {
         Alert.alert("Error", "Tenant document does not exist");
         return;
       }
-      
+
       await updateDoc(tenantUserRef, {
-        problems: arrayUnion(problem),
+        tenantInfo: {
+          ...tenantDoc.data().tenantInfo,
+          problems: arrayUnion(problem),
+        },
       });
 
       console.log("Problem added successfully", imageURL);
       Alert.alert("Success", "Problem added successfully");
 
-      router.replace("/tenantDashboard/TenantDashboard")
+      router.replace("/tenantDashboard/TenantDashboard");
     } catch (error) {
-      Alert.alert("Error", "Failed to upload image or update problems: " + error);
+      Alert.alert(
+        "Error",
+        "Failed to upload image or update problems: " + error
+      );
       console.error(error);
     } finally {
       setLoading(false); // Hide loader
     }
-  }
+  };
 
   return (
     <SafeAreaView style={styles.container}>

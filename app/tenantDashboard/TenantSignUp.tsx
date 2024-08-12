@@ -18,7 +18,7 @@ type FormData = {
 const TenantSignUp = () => {
   const router = useRouter();
   const { tenantInfo } = useLocalSearchParams();
-  const parsedTenantInfo: Tenant = JSON.parse(tenantInfo as string);
+  const parsedTenantInfo: Tenant["tenantInfo"] = JSON.parse(tenantInfo as string);
 
   const [formData, setFormData] = useState<FormData>({
     password: "",
@@ -40,17 +40,18 @@ const TenantSignUp = () => {
       return;
     }
 
+    console.log(parsedTenantInfo)
     try {
       const user = await createUserWithEmailAndPassword(
         auth,
-        `${parsedTenantInfo.tenantInfo.number}@notorizer.com`,
+        `${parsedTenantInfo.number}@notorizer.com`,
         password
       )
 
-      await updateProfile(user.user, { displayName: parsedTenantInfo.tenantInfo.name });
+      await updateProfile(user.user, { displayName: parsedTenantInfo.name });
 
       user.user.displayName
-      const userDocRef = doc(db, "tenantUser", parsedTenantInfo.tenantInfo.name);
+      const userDocRef = doc(db, "tenantUser", parsedTenantInfo.name);
       await updateDoc(userDocRef, {
         tenantInfo: {
           ...parsedTenantInfo,

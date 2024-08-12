@@ -31,7 +31,7 @@ export type Data = {
   landlordVerificationData: LandlordVerificationData
   livingRooms?: RoomData
   bathrooms?: RoomData
-  tenantInfo?: Tenant | undefined | null
+  tenantInfo?: Tenant['tenantInfo'] | undefined | null
 }
 
 export interface Property {
@@ -71,7 +71,6 @@ export type Tenant = {
     signature?: string;
     houseImages?: TenantHouseImages;
     password?: string;
+    problems?: TenantProblem[];
   }
-
-  problems?: TenantProblem[];
 };

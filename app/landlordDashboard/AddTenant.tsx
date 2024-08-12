@@ -54,15 +54,23 @@ this is your OTP **${otp}**\n and this is your provided name: **${data.tenantInf
   );
 
   const handleChanges = (key: string, value: string) => {
-    const keyMap: { [label: string]: keyof Tenant['tenantInfo'] } = {
+    const keyMap: { [label: string]: keyof Tenant["tenantInfo"] } = {
       "Tenant Name": "name",
       "Phone Number": "number",
     };
-    
+  
     const mappedKey = keyMap[key];
     if (mappedKey) {
-      setData((prevData) => ({ ...prevData, [mappedKey]: value }));
+      setData((prevData) => ({
+        ...prevData,
+        tenantInfo: {
+          ...prevData.tenantInfo,
+          [mappedKey]: value,
+        },
+      }));
     }
+  
+    console.log("data", data);
   };
 
   const handleSubmit = async () => {

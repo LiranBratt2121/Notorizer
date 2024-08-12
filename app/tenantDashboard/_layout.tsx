@@ -39,6 +39,20 @@ const TenantDashboardLayout = () => {
           headerShown: true,
         }}
       />
+      <Stack.Screen
+        name="ReportProblem"
+        options={{
+          headerTitle: "Report Problem",
+          headerShown: true,
+        }}
+      />
+      <Stack.Screen
+        name="UpdateSpaces"
+        options={{
+          headerTitle: "Update Spaces",
+          headerShown: true,
+        }}
+      />
     </Stack>
   );
 };

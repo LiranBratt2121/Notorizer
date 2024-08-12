@@ -8,6 +8,7 @@ import { doc, setDoc, updateDoc } from "firebase/firestore";
 import { db, auth } from "../../firebase/FirebaseConfig";
 import Button from "@/components/common/Button";
 import { PropetryDetailsFirebaseType } from "@/types/PropertyDetailsTypes";
+import { findTenantByName } from "@/utils/FirebaseUtils";
 import RenderProblems from "@/components/RenderProblems";
 
 const windowWidth = Dimensions.get("window").width;
@@ -89,7 +90,8 @@ const PreviewHouse: React.FC = () => {
       tenantInfo: {
         name: property.data.tenantInfo?.name ?? "",
         number: property.data.tenantInfo?.number ?? "",
-        houseImages: Array.isArray(property.data.tenantInfo?.houseImages) ? property.data.tenantInfo.houseImages : []
+        houseImages: Array.isArray(property.data.tenantInfo?.houseImages) ? property.data.tenantInfo.houseImages : [],
+        problems: tenant?.problems ?? [] // Ensure problems are included
       }
     };
 
@@ -219,6 +221,17 @@ const PreviewHouse: React.FC = () => {
             </View>
           ))}
         </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionHeader}>Problems</Text>
+          {tenant?.problems && tenant.problems.length > 0 ? (
+            <RenderProblems
+              problems={tenant?.problems}
+            />
+          ) : (
+            <Text style={styles.infoValue}>No problems reported</Text>
+          )}
+        </View>
   
         {isEditing ? (
           <View style={styles.buttonContainer}>
@@ -344,6 +357,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginTop: 10,
+  },
+  problemContainer: {
+    marginBottom: 16,
+  },
+  problemDescription: {
+    fontSize: 16,
+    color: '#333',
+    marginBottom: 8,
+  },
+  problemImage: {
+    width: '100%',
+    height: 150,
+    resizeMode: "cover",
+    borderRadius: 8,
   },
 });
 

@@ -1,22 +1,44 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, Image, StyleSheet, ScrollView, Dimensions, TextInput, Alert, ActivityIndicator, TouchableOpacity } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import { Property, Data, RoomData } from "@/types/common/Household";
+import { Property, Data, RoomData, Tenant } from "@/types/common/Household";
 import encodePath, { encodeLandlordVerificationData } from "@/utils/EncodeFireBaseStorageURL";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { doc, setDoc, updateDoc } from "firebase/firestore";
 import { db, auth } from "../../firebase/FirebaseConfig";
 import Button from "@/components/common/Button";
 import { PropetryDetailsFirebaseType } from "@/types/PropertyDetailsTypes";
+import RenderProblems from "@/components/RenderProblems";
 
 const windowWidth = Dimensions.get("window").width;
 
 const PreviewHouse: React.FC = () => {
   const { propertyString } = useLocalSearchParams();
   const [property, setProperty] = useState<Property>(JSON.parse(propertyString as string));
+  const [tenant, setTenant] = useState<Tenant | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const urls = encodeLandlordVerificationData(property);
+
+  useEffect(() => {
+    const fetchTenantData = async () => {
+      try {
+        const tenantName = property.data?.tenantInfo?.name ?? "";
+        if (tenantName) {
+          const tenantData = await findTenantByName(tenantName);
+          if (tenantData) {
+            setTenant(tenantData);
+          } else {
+            Alert.alert("No tenant found");
+          }
+        }
+      } catch (e) {
+        Alert.alert("Error: " + e);
+      }
+    };
+
+    fetchTenantData();
+  }, [property.data?.tenantInfo?.name]);
 
   const images = [
     { key: "houseImage", url: urls.houseImageUrl, title: "House" },

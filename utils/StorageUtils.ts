@@ -30,6 +30,26 @@ const uploadBase64Image = async (base64String: string): Promise<string> => {
   }
 };
 
+const uploadSvgImage = async (svgString: string): Promise<string> => {
+  try {
+    const fileName = generateUniqueFileName(svgString);
+    const storageRef = ref(storage, fileName);
+
+    const blob = new Blob([svgString], { type: 'image/svg+xml' });
+
+    const snapshot = await uploadBytes(storageRef, blob);
+    const downloadURL = await getDownloadURL(snapshot.ref);
+
+    console.log('Uploaded an SVG image as Blob!');
+    console.log('File available at:', downloadURL);
+
+    return downloadURL;
+  } catch (error) {
+    console.error('Error uploading SVG image:', error);
+    throw error;
+  }
+};
+
 const fetchImageAsBase64 = async (downloadURL: string): Promise<string | null> => {
   try {
     const response = await fetch(downloadURL);
@@ -65,4 +85,5 @@ const fetchImageAsBase64 = async (downloadURL: string): Promise<string | null> =
 export {
   uploadBase64Image,
   fetchImageAsBase64,
+  uploadSvgImage,
 };

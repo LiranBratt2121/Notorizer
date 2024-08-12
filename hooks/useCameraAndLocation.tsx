@@ -72,14 +72,15 @@ const useCameraAndLocation = () => {
     const svg = `
     <svg width="${scaledWidth}" height="${scaledHeight}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
       <image href="data:image/jpeg;base64,${imageBase64}" width="${scaledWidth}" height="${scaledHeight}" preserveAspectRatio="xMidYMid meet"/>
-      <text x="${scaledWidth * 0.05}" y="${scaledHeight * 0.9}" font-size="${textSize}" fill="red" font-family="Arial" font-weight="bold" text-anchor="start">
+      <text x="${scaledWidth * 0.05}" y="${scaledHeight * 0.1}" font-size="${textSize}" fill="white" font-family="Arial" font-weight="bold" text-anchor="start">
         Location: ${locationString || 'N/A'}
       </text>
-      <text x="${scaledWidth * 0.05}" y="${scaledHeight * 0.95}" font-size="${textSize}" fill="red" font-family="Arial" font-weight="bold" text-anchor="start">
+      <text x="${scaledWidth * 0.05}" y="${scaledHeight * 0.15}" font-size="${textSize}" fill="white" font-family="Arial" font-weight="bold" text-anchor="start">
         Time&amp;Date: ${new Date().toLocaleString() || 'N/A'}
       </text>
     </svg>
   `;
+  
     setSvgMarkup(svg); // Set the SVG markup state
   };
 

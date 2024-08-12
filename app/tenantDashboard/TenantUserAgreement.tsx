@@ -30,8 +30,12 @@ const TenantUserAgreement = () => {
     try {
       const userDocRef = doc(db, "tenantUser", parsedTenantInfo.name);
       await updateDoc(userDocRef, {
-        signature: signature,
-        agreedToTerms: isAgreed
+        tenantInfo: {
+          ...parsedTenantInfo,
+          signature: signature,
+          agreedToTerms: isAgreed
+        }
+
       });
       Alert.alert("Success", "User agreement accepted successfully!");
       router.replace("/tenantDashboard/TenantLogin");

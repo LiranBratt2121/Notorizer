@@ -24,7 +24,7 @@ const PreviewHouse: React.FC = () => {
   useEffect(() => {
     const fetchTenantData = async () => {
       try {
-        const tenantName = property.data?.tenantInfo?.name ?? "";
+        const tenantName = property.data?.tenantInfo?.tenantInfo.name ?? "";
         if (tenantName) {
           const tenantData = await findTenantByName(tenantName);
           if (tenantData) {
@@ -39,7 +39,7 @@ const PreviewHouse: React.FC = () => {
     };
 
     fetchTenantData();
-  }, [property.data?.tenantInfo?.name]);
+  }, [property.data?.tenantInfo?.tenantInfo.name]);
 
   const images = [
     { key: "houseImage", url: urls.houseImageUrl, title: "House" },
@@ -88,10 +88,12 @@ const PreviewHouse: React.FC = () => {
         houseImageUrl: encodePath(property.data.landlordVerificationData?.houseImageUrl ?? "") ?? null
       },
       tenantInfo: {
-        name: property.data.tenantInfo?.name ?? "",
-        number: property.data.tenantInfo?.number ?? "",
-        houseImages: Array.isArray(property.data.tenantInfo?.houseImages) ? property.data.tenantInfo.houseImages : [],
-        problems: tenant?.problems ?? [] // Ensure problems are included
+        tenantInfo: {
+          name: property.data.tenantInfo?.tenantInfo?.name ?? "",
+          number: property.data.tenantInfo?.tenantInfo?.number ?? "",
+          houseImages: property.data.tenantInfo?.tenantInfo?.houseImages ?? {},
+        },
+        problems: property.data.tenantInfo?.problems ?? []
       }
     };
 
@@ -179,8 +181,8 @@ const PreviewHouse: React.FC = () => {
           <Text style={styles.sectionHeader}>Tenant Information</Text>
           {property.data.tenantInfo ? (
             <>
-              <Text style={styles.infoValue}>Name: {property.data.tenantInfo.name}</Text>
-              <Text style={styles.infoValue}>Number: {property.data.tenantInfo.number}</Text>
+              <Text style={styles.infoValue}>Name: {property.data.tenantInfo.tenantInfo.name}</Text>
+              <Text style={styles.infoValue}>Number: {property.data.tenantInfo.tenantInfo.number}</Text>
               {isEditing && (
                 <TouchableOpacity onPress={handleRemoveTenant}>
                   <Text style={styles.removeButton}>Remove Tenant</Text>

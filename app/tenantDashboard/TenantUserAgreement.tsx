@@ -28,7 +28,7 @@ const TenantUserAgreement = () => {
 
   const handleAgreement = async () => {
     try {
-      const userDocRef = doc(db, "tenantUser", parsedTenantInfo.name);
+      const userDocRef = doc(db, "tenantUser", parsedTenantInfo.tenantInfo.name);
       await updateDoc(userDocRef, {
         tenantInfo: {
           ...parsedTenantInfo,

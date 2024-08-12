@@ -43,14 +43,14 @@ const TenantSignUp = () => {
     try {
       const user = await createUserWithEmailAndPassword(
         auth,
-        `${parsedTenantInfo.number}@notorizer.com`,
+        `${parsedTenantInfo.tenantInfo.number}@notorizer.com`,
         password
       )
 
-      await updateProfile(user.user, { displayName: parsedTenantInfo.name });
+      await updateProfile(user.user, { displayName: parsedTenantInfo.tenantInfo.name });
 
       user.user.displayName
-      const userDocRef = doc(db, "tenantUser", parsedTenantInfo.name);
+      const userDocRef = doc(db, "tenantUser", parsedTenantInfo.tenantInfo.name);
       await updateDoc(userDocRef, {
         tenantInfo: {
           ...parsedTenantInfo,

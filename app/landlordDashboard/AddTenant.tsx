@@ -14,8 +14,10 @@ const AddTenant = () => {
   const { houseAddr }: { houseAddr: string } = useLocalSearchParams();
   const [landlordName, setLandlordName] = useState<string>("Landlord");
   const [data, setData] = useState<Tenant>({
-    name: "",
-    number: "",
+    tenantInfo: {
+      name: "",
+      number: "",
+    }
   });
 
   useEffect(() => {
@@ -47,16 +49,16 @@ const AddTenant = () => {
   const inviteMessage = useMemo(
     () =>
       `Hi! ${landlordName}, your landlord sent you an invitation to notorizer!\n
-this is your OTP **${otp}**\n and this is your provided name: **${data.name}**use it when logging in as a tenant!`,
-    [landlordName, data.name]
+this is your OTP **${otp}**\n and this is your provided name: **${data.tenantInfo.name}** use it when logging in as a tenant!`,
+    [landlordName, data.tenantInfo.name]
   );
 
   const handleChanges = (key: string, value: string) => {
-    const keyMap: { [label: string]: keyof Tenant } = {
+    const keyMap: { [label: string]: keyof Tenant['tenantInfo'] } = {
       "Tenant Name": "name",
       "Phone Number": "number",
     };
-
+    
     const mappedKey = keyMap[key];
     if (mappedKey) {
       setData((prevData) => ({ ...prevData, [mappedKey]: value }));
@@ -70,7 +72,7 @@ this is your OTP **${otp}**\n and this is your provided name: **${data.name}**us
     }
 
     try {
-      await SendSMS(data.number, inviteMessage);
+      await SendSMS(data.tenantInfo.number, inviteMessage);
       const collectionPath = `landlordUser/${auth.currentUser?.uid}/property`;
       const id = (await findDocumentIdByName(collectionPath, houseAddr.trim())) ?? "";
       if (!id) {
@@ -79,8 +81,8 @@ this is your OTP **${otp}**\n and this is your provided name: **${data.name}**us
       }
 
       const tenantInfo = {
-        name: data.name,
-        number: data.number,
+        name: data.tenantInfo.name,
+        number: data.tenantInfo.number,
         otp,
         landlordId: auth.currentUser?.uid,
         houseAddress: houseAddr.trim(),
@@ -91,7 +93,7 @@ this is your OTP **${otp}**\n and this is your provided name: **${data.name}**us
         { tenantInfo }
       );
 
-      await setDoc(doc(db, "tenantUser", data.name), { tenantInfo });
+      await setDoc(doc(db, "tenantUser", data.tenantInfo.name), { tenantInfo });
 
       router.replace({
         pathname: "/landlordDashboard/dashboard",

@@ -40,7 +40,7 @@ export interface Property {
   data: Data;
 }
 
-type Corner = {
+export type Corner = {
   side: Number;
   RoomData: RoomData;
 }
@@ -61,12 +61,17 @@ export type TenantProblem = {
 }
 
 export type Tenant = {
-  name: string;
-  number: string;
-  houseImages?: TenantHouseImages;
-  otp?: string;
-  landlordId?: string;
-  houseAddress?: string;
-  password?: string;
+  tenantInfo: {
+    name: string;
+    number: string;
+    agreedToTerms?: Boolean
+    houseAddress?: string;
+    landlordId?: string;
+    otp?: string;
+    signature?: string;
+    houseImages?: TenantHouseImages;
+    password?: string;
+  }
+
   problems?: TenantProblem[];
 };

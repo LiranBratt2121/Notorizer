@@ -1,4 +1,5 @@
 import { db } from "@/firebase/FirebaseConfig";
+import { Tenant } from "@/types/common/Household";
 import { collection, doc, getDoc, getDocs} from "firebase/firestore";
 
 export const findDocumentIdByName = async (collectionPath: string, name: string) => {
@@ -34,6 +35,24 @@ export const findTenantByOTP = async (tenantName: string, otp: string) => {
     }
   } catch (error) {
     console.error("Error finding tenant by OTP:", error);
+    return null;
+  }
+};
+
+export const findTenantByName = async (tenantName: string): Promise<Tenant | null> => {
+  try {
+    const tenantDocRef = doc(db, `tenantUser/${tenantName.trim()}`);
+    const tenantDocSnap = await getDoc(tenantDocRef);
+
+    if (tenantDocSnap.exists()) {
+      const tenantData = tenantDocSnap.data() as Tenant; // Cast to Tenant
+      return tenantData;
+    } else {
+      console.log("No such document!");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error finding tenant by name:", error);
     return null;
   }
 };

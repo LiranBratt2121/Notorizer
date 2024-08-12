@@ -4,7 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Input from "@/components/common/Input";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import Button from "@/components/common/Button";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth, db } from "@/firebase/FirebaseConfig";
 import { Tenant } from "@/types/common/Household";
 import { doc, updateDoc } from "firebase/firestore";
@@ -41,11 +41,15 @@ const TenantSignUp = () => {
     }
 
     try {
-      await createUserWithEmailAndPassword(
+      const user = await createUserWithEmailAndPassword(
         auth,
         `${parsedTenantInfo.number}@notorizer.com`,
         password
-      );
+      )
+
+      await updateProfile(user.user, { displayName: parsedTenantInfo.name });
+
+      user.user.displayName
       const userDocRef = doc(db, "tenantUser", parsedTenantInfo.name);
       await updateDoc(userDocRef, {
         tenantInfo: {

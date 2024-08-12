@@ -1,5 +1,5 @@
 import { db } from "@/firebase/FirebaseConfig";
-import { Tenant } from "@/types/common/Household";
+import { Data, Property, Tenant } from "@/types/common/Household";
 import { collection, doc, getDoc, getDocs} from "firebase/firestore";
 
 export const findDocumentIdByName = async (collectionPath: string, name: string) => {
@@ -55,4 +55,22 @@ export const findTenantByName = async (tenantName: string): Promise<Tenant | nul
     console.error("Error finding tenant by name:", error);
     return null;
   }
+};
+
+export const findPropertyDataByTenant = async (tenant: Tenant): Promise<Data | null> => {
+  try {
+    const landlordId = tenant.tenantInfo.landlordId ?? "NA";
+
+    const querySnapshot = await getDocs(collection(db, "landlordUser", landlordId, "property"));
+    console.log("Query snapshot:", ["landlordUser", landlordId, "property"]);
+
+    if (!querySnapshot.empty) {
+      const doc = querySnapshot.docs[0];
+      return doc.data() as Data;
+    }
+  } catch (error) {
+    console.error("Error finding property by tenant:", error);
+    return null;
+  }
+  return null;
 };

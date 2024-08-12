@@ -55,6 +55,11 @@ export type TenantHouseImages = {
   bathrooms?: Corner[]
 }
 
+export type TenantProblem = {
+  imageURL: string;
+  description: string;
+}
+
 export type Tenant = {
   name: string;
   number: string;
@@ -63,4 +68,5 @@ export type Tenant = {
   landlordId?: string;
   houseAddress?: string;
   password?: string;
+  problems?: TenantProblem[];
 };

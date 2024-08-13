@@ -110,28 +110,30 @@ const SignUp: React.FC = () => {
   };
 
   const inputFields = [
-    { label: "Email", key: "email", secureTextEntry: false, keyboardType: "email-address", autoCapitalize: "none" },
-    { label: "User Name", key: "name", secureTextEntry: false, keyboardType: "default", autoCapitalize: "sentences" },
-    { label: "Password", key: "password", secureTextEntry: true, keyboardType: "default", autoCapitalize: "none" },
-    { label: "Confirm Password", key: "confirmPassword", secureTextEntry: true, keyboardType: "default", autoCapitalize: "none" },
-    { label: "Full Name", key: "fullName", secureTextEntry: false, keyboardType: "default", autoCapitalize: "sentences" },
+    { label: "Email", key: "email", secureTextEntry: false, keyboardType: "email-address", autoCapitalize: "none", hidden: false },
+    { label: "User Name", key: "name", secureTextEntry: false, keyboardType: "default", autoCapitalize: "sentences", hidden: false },
+    { label: "Password", key: "password", secureTextEntry: true, keyboardType: "default", autoCapitalize: "none", hidden: false },
+    { label: "Confirm Password", key: "confirmPassword", secureTextEntry: true, keyboardType: "default", autoCapitalize: "none", hidden: false },
+    { label: "Full Name", key: "fullName", secureTextEntry: false, keyboardType: "default", autoCapitalize: "sentences", hidden: true }, // Hidden field
   ];
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.form}>
         {inputFields.map((field) => (
-          <Input
-            key={field.key}
-            label={field.label}
-            secureTextEntry={field.secureTextEntry}
-            keyboardType={field.keyboardType as KeyboardTypeOptions}
-            autoCapitalize={field.autoCapitalize as TextInputProps["autoCapitalize"]}
-            onChangeText={(value) =>
-              handleInputChange(field.key as keyof SignUpInfo, value)
-            }
-            value={formData[field.key as keyof SignUpInfo] || ""}
-          />
+          !field.hidden && (
+            <Input
+              key={field.key}
+              label={field.label}
+              secureTextEntry={field.secureTextEntry}
+              keyboardType={field.keyboardType as KeyboardTypeOptions}
+              autoCapitalize={field.autoCapitalize as TextInputProps["autoCapitalize"]}
+              onChangeText={(value) =>
+                handleInputChange(field.key as keyof SignUpInfo, value)
+              }
+              value={formData[field.key as keyof SignUpInfo] || ""}
+            />
+          )
         ))}
         <Button title="Sign User Agreement" onPress={handleSignatureButton} />
         <Button title="Submit" onPress={handleSubmit} />
@@ -139,6 +141,7 @@ const SignUp: React.FC = () => {
       </View>
     </SafeAreaView>
   );
+  
 };
 
 const styles = StyleSheet.create({

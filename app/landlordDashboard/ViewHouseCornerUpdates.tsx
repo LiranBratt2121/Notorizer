@@ -20,11 +20,13 @@ const ViewHouseCornerUpdates = ({ tenantInfo }: ViewHouseCornerUpdatesProps) => 
           const tenantName = tenantInfo?.name ?? "NA";
           const propertyDocRef = doc(db, "tenantUser", tenantName);
           const docSnap = await getDoc(propertyDocRef);
+          console.log("Document data:", docSnap.data());
           if (docSnap.exists()) {
             const houseImages: TenantHouseImages = docSnap.data().tenantInfo.houseImages;
             setHouseImages(houseImages);
           } else {
             console.log("No such document!");
+            setHouseImages(null);
           }
         } catch (error) {
           console.error("Error fetching data:", error);
@@ -32,8 +34,9 @@ const ViewHouseCornerUpdates = ({ tenantInfo }: ViewHouseCornerUpdatesProps) => 
           setIsLoading(false);
         }
       };
-  
-      fetchData();
+      if (tenantInfo){
+        fetchData();
+      }
     }, [tenantInfo]);
 
     if (isLoading) {

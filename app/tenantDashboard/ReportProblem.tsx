@@ -31,35 +31,42 @@ const ReportProblem = () => {
       Alert.alert("Error", "Please take an image");
       return;
     }
-
+  
     setLoading(true); // Show loader
     try {
       const imageURL = await uploadSvgImage(svgMarkup);
-
+  
       const problem: TenantProblem = {
         description: value,
         imageURL,
       };
-
+  
       const docName = auth.currentUser?.displayName || "";
       const tenantUserRef = doc(db, "tenantUser", docName);
       const tenantDoc = await getDoc(tenantUserRef);
-
+  
       if (!tenantDoc.exists()) {
         Alert.alert("Error", "Tenant document does not exist");
         return;
       }
-
+  
+      const tenantData = tenantDoc.data();
+      const existingProblems = tenantData?.tenantInfo?.problems || [];
+  
+      // Add the new problem to the existing problems array
+      const updatedProblems = [...existingProblems, problem];
+  
+      // Update the document with the new array
       await updateDoc(tenantUserRef, {
         tenantInfo: {
-          ...tenantDoc.data().tenantInfo,
-          problems: arrayUnion(problem),
+          ...tenantData.tenantInfo,
+          problems: updatedProblems,
         },
       });
-
+  
       console.log("Problem added successfully", imageURL);
       Alert.alert("Success", "Problem added successfully");
-
+  
       router.replace("/tenantDashboard/TenantDashboard");
     } catch (error) {
       Alert.alert(

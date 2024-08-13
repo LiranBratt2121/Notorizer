@@ -6,6 +6,7 @@ import { auth, db } from '@/firebase/FirebaseConfig';
 import * as ImagePicker from 'expo-image-picker';
 import { uploadBase64Image } from '@/utils/StorageUtils';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import encodePath from '@/utils/EncodeFireBaseStorageURL';
 
 const UpdateCorner = () => {
   const [tenantInfo, setTenantInfo] = useState<Tenant["tenantInfo"] | null>(null);
@@ -154,7 +155,7 @@ const UpdateCorner = () => {
         <ActivityIndicator style={styles.activityIndicator} size="small" color="#007bff" />
       )}
       {capturedImages[key] && (
-        <Image source={{ uri: capturedImages[key] }} style={styles.capturedImage} />
+        <Image source={{ uri: encodePath(capturedImages[key]) }} style={styles.capturedImage} />
       )}
     </View>
   );
@@ -165,7 +166,7 @@ const UpdateCorner = () => {
       return null;
     }
     return roomData.images.map((imageUrl, index) => (
-      <Image key={index} source={{ uri: imageUrl }} style={styles.roomImage} />
+      <Image key={index} source={{ uri: encodePath(imageUrl) }} style={styles.roomImage} />
     ));
   };
 

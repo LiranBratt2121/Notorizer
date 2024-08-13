@@ -40,7 +40,7 @@ const TenantLogin = () => {
   };
 
   const inputFields: { label: string; name: keyof TenantLoginOTPData }[] = [
-    { label: "Name by tenant", name: "nameByLandlord" },
+    { label: "Name by landlord", name: "nameByLandlord" },
     { label: "OTP", name: "otp" },
   ];
 

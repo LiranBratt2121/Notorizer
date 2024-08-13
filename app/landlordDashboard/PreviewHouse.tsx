@@ -62,7 +62,7 @@ const PreviewHouse: React.FC = () => {
     };
 
     fetchTenantData();
-  }, [property.data?.tenantInfo?.name]);
+  }, []);
 
   const images = [
     { key: "houseImage", url: urls.houseImageUrl, title: "House" },
@@ -143,13 +143,10 @@ const PreviewHouse: React.FC = () => {
           ) ?? null,
       },
       tenantInfo: {
-        tenantInfo: {
-          name: property.data.tenantInfo?.name ?? "",
-          number: property.data.tenantInfo?.number ?? "",
-          problems:
-            property.data.tenantInfo?.problems ?? ({} as TenantProblem[]),
-          houseImages: property.data.tenantInfo?.houseImages ?? {},
-        },
+        name: property.data.tenantInfo?.name ?? "",
+        number: property.data.tenantInfo?.number ?? "",
+        problems: property.data.tenantInfo?.problems ?? ({} as TenantProblem[]),
+        houseImages: property.data.tenantInfo?.houseImages ?? {},
       },
     };
 

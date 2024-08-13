@@ -47,9 +47,9 @@ const TenantDashboardLayout = () => {
         }}
       />
       <Stack.Screen
-        name="UpdateSpaces"
+        name="UpdateCorner"
         options={{
-          headerTitle: "Update Spaces",
+          headerTitle: "Update Corner",
           headerShown: true,
         }}
       />

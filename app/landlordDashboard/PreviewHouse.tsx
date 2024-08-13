@@ -40,9 +40,9 @@ const PreviewHouse: React.FC = () => {
   );
   const [tenant, setTenant] = useState<Tenant | null>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const urls = encodeLandlordVerificationData(property);
-
+  
   useEffect(() => {
     const fetchTenantData = async () => {
       try {
@@ -52,16 +52,18 @@ const PreviewHouse: React.FC = () => {
           if (tenantData) {
             setTenant(tenantData);
           } else {
-            Alert.alert("No tenant found");
             console.log("No tenant found");
           }
         }
       } catch (e) {
         Alert.alert("Error: " + e);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchTenantData();
+    return () => {setIsLoading(false)};
   }, []);
 
   const images = [
@@ -326,7 +328,11 @@ const PreviewHouse: React.FC = () => {
 
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>Recent Imagery</Text>
-          <ViewHouseCornerUpdates tenantInfo={tenant?.tenantInfo ?? null} />
+          {isLoading ? (
+            <ActivityIndicator size="large" color="#0000ff" />
+          ) : (
+            <ViewHouseCornerUpdates tenantInfo={tenant?.tenantInfo ?? null} />
+          )}
         </View>
 
         {isEditing ? (
@@ -348,6 +354,7 @@ const PreviewHouse: React.FC = () => {
     </SafeAreaView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {

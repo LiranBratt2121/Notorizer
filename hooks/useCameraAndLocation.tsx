@@ -12,6 +12,7 @@ const useCameraAndLocation = () => {
     const { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== 'granted') {
       Alert.alert('Error', 'Location permission is required to use this feature');
+      console.error('Location permission is required to use this feature');
       return false;
     }
     return true;
@@ -21,6 +22,7 @@ const useCameraAndLocation = () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== 'granted') {
       Alert.alert('Error', 'Camera permission is required to take pictures');
+      console.error('Camera permission is required to take pictures');
       return false;
     }
     return true;

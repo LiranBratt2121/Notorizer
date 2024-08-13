@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import { View, Text, Image, StyleSheet, ScrollView, ActivityIndicator } from 'react-native'
+import { View, Text, Image, StyleSheet, ScrollView, ActivityIndicator, Alert } from 'react-native'
 import { Tenant, TenantHouseImages } from '@/types/common/Household';
-import { auth, db } from '@/firebase/FirebaseConfig';
+import { db } from '@/firebase/FirebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
 import encodePath from '@/utils/EncodeFireBaseStorageURL';
 
@@ -15,18 +15,23 @@ const ViewHouseCornerUpdates = ({ tenantInfo }: ViewHouseCornerUpdatesProps) => 
   
     useEffect(() => {
       const fetchData = async () => {
+        if (!tenantInfo) {
+          console.log("No tenant information provided");
+          return;
+        }
+
         try {
           setIsLoading(true);
-          const tenantName = tenantInfo?.name ?? "NA";
+          const tenantName = tenantInfo.name ?? "NA";
           const propertyDocRef = doc(db, "tenantUser", tenantName);
           const docSnap = await getDoc(propertyDocRef);
-          console.log("Document data:", docSnap.data());
+
           if (docSnap.exists()) {
             const houseImages: TenantHouseImages = docSnap.data().tenantInfo.houseImages;
             setHouseImages(houseImages);
           } else {
             console.log("No such document!");
-            setHouseImages(null);
+            Alert.alert("Error", "Failed to fetch data");
           }
         } catch (error) {
           console.error("Error fetching data:", error);
@@ -34,9 +39,8 @@ const ViewHouseCornerUpdates = ({ tenantInfo }: ViewHouseCornerUpdatesProps) => 
           setIsLoading(false);
         }
       };
-      if (tenantInfo){
-        fetchData();
-      }
+      
+      fetchData();
     }, [tenantInfo]);
 
     if (isLoading) {
@@ -57,11 +61,11 @@ const ViewHouseCornerUpdates = ({ tenantInfo }: ViewHouseCornerUpdatesProps) => 
                 <View key={index} style={styles.imageContainer}>
                   {image.RoomData && image.RoomData.images && image.RoomData.images[0] ? (
                     <Image 
-                      source={{ uri: encodePath(image.RoomData.images[0]) }} 
+                      source={{ uri: encodePath(image.RoomData.images[0]) }}
                       style={styles.image} 
                     />
                   ) : (
-                    <Text>Image not available</Text>
+                    <Text> Image not available</Text>
                   )}
                   <Text style={styles.imageInfo}>Side: {image.side}</Text>
                   <Text style={styles.imageInfo}>Date: {image.dateTime}</Text>

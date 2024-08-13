@@ -23,15 +23,16 @@ export interface RoomData {
 }
 
 export type Data = {
-  addExternalSpace?: RoomData
-  addRooms?: RoomData
-  bedrooms?: RoomData
-  externalView?: RoomData
-  kitchen?: RoomData
-  landlordVerificationData: LandlordVerificationData
-  livingRooms?: RoomData
-  bathrooms?: RoomData
-  tenantInfo?: Tenant['tenantInfo'] | undefined | null
+  addExternalSpace?: RoomData;
+  addRooms?: RoomData;
+  bedrooms?: RoomData;
+  externalView?: RoomData;
+  kitchen?: RoomData;
+  landlordVerificationData: LandlordVerificationData;
+  livingRooms?: RoomData;
+  bathrooms?: RoomData;
+  tenantInfo?: Tenant['tenantInfo'] | undefined | null;
+  [key: string]: RoomData | LandlordVerificationData | Tenant['tenantInfo'] | undefined | null;
 }
 
 export interface Property {
@@ -41,18 +42,20 @@ export interface Property {
 }
 
 export type Corner = {
-  side: Number;
+  side: number;
   RoomData: RoomData;
+  dateTime: string;
 }
 
 export type TenantHouseImages = {
-  addExternalSpace?: Corner[]
-  addRooms?: Corner[]
-  bedrooms?: Corner[]
-  externalView?: Corner[]
-  kitchen?: Corner[]
-  livingRooms?: Corner[]
-  bathrooms?: Corner[]
+  addExternalSpace?: Corner[];
+  addRooms?: Corner[];
+  bedrooms?: Corner[];
+  externalView?: Corner[];
+  kitchen?: Corner[];
+  livingRooms?: Corner[];
+  bathrooms?: Corner[];
+  [key: string]: Corner[] | undefined;
 }
 
 export type TenantProblem = {
@@ -64,7 +67,7 @@ export type Tenant = {
   tenantInfo: {
     name: string;
     number: string;
-    agreedToTerms?: Boolean
+    agreedToTerms?: boolean;
     houseAddress?: string;
     landlordId?: string;
     otp?: string;

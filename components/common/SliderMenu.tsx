@@ -61,6 +61,15 @@ const SliderMenu: React.FC = () => {
     })));
   };
 
+  useEffect(() => {
+    (async () => {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission Denied', 'Camera access is required to use this feature.');
+      }
+    })();
+  })
+
   const handleItemChange = (index: number, name: string) => {
     setItems((prevItems) => {
       const newItems = [...prevItems];

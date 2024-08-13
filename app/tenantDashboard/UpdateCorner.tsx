@@ -39,69 +39,78 @@ const UpdateCorner = () => {
 
   const handleImageCapture = async (roomType: string) => {
     setLoadingStates(prev => ({ ...prev, [roomType]: true }));
-
+  
     try {
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
       if (status !== 'granted') {
         Alert.alert('Error', 'Camera permission is required to take pictures');
         return;
       }
-
+  
       const result = await ImagePicker.launchCameraAsync({
         allowsEditing: true,
         quality: 0.4,
         base64: true,
       });
-
+  
       if (!result.assets || !result.assets[0].base64) {
         Alert.alert('Error', 'Failed to capture image');
         return;
       }
-
+  
       const imageBase64 = result.assets[0].base64;
       const imageURL = await uploadBase64Image(imageBase64);
       console.log('Uploaded image URL:', imageURL);
-
+  
       const tenantDocRef = doc(db, "tenantUser", auth.currentUser?.displayName ?? "");
       const docSnap = await getDoc(tenantDocRef);
-
+  
       const currentDateTime = new Date().toLocaleString();
-
-      let updatedHouseImages: TenantHouseImages = {};
-
+  
       if (docSnap.exists()) {
         const currentData = docSnap.data();
-        updatedHouseImages = currentData.houseImages || {};
-
-        if (!updatedHouseImages[roomType]) {
-          updatedHouseImages[roomType] = [];
+        // Create a deep copy of the entire tenantInfo object
+        const updatedTenantInfo = JSON.parse(JSON.stringify(currentData.tenantInfo || {}));
+  
+        // Ensure houseImages exists
+        if (!updatedTenantInfo.houseImages) {
+          updatedTenantInfo.houseImages = {};
         }
-
-        updatedHouseImages[roomType].push({
-          side: updatedHouseImages[roomType].length + 1,
+  
+        // Update or create the specific room type
+        if (!updatedTenantInfo.houseImages[roomType]) {
+          updatedTenantInfo.houseImages[roomType] = [];
+        }
+  
+        updatedTenantInfo.houseImages[roomType].push({
+          side: updatedTenantInfo.houseImages[roomType].length + 1,
           RoomData: {
             images: [imageURL],
             name: roomType,
           },
           dateTime: currentDateTime,
         });
-
-        await updateDoc(tenantDocRef, { houseImages: updatedHouseImages });
+  
+        // Update only the tenantInfo field, preserving all other document fields
+        await updateDoc(tenantDocRef, { tenantInfo: updatedTenantInfo });
       } else {
-        updatedHouseImages = {
-          [roomType]: [{
-            side: 1,
-            RoomData: {
-              images: [imageURL],
-              name: roomType,
-            },
-            dateTime: currentDateTime,
-          }],
+        // If the document doesn't exist, create it with initial tenantInfo
+        const newTenantInfo = {
+          houseImages: {
+            [roomType]: [{
+              side: 1,
+              RoomData: {
+                images: [imageURL],
+                name: roomType,
+              },
+              dateTime: currentDateTime,
+            }],
+          },
         };
-
-        await setDoc(tenantDocRef, { houseImages: updatedHouseImages });
+  
+        await setDoc(tenantDocRef, { tenantInfo: newTenantInfo });
       }
-
+  
       Alert.alert("Success", "Image captured and saved successfully!");
       setCapturedImages(prev => ({ ...prev, [roomType]: imageURL }));
     } catch (error) {
@@ -111,7 +120,7 @@ const UpdateCorner = () => {
       setLoadingStates(prev => ({ ...prev, [roomType]: false }));
     }
   };
-
+  
   const renderPropertyData = (data: Data) => {
     return Object.entries(data).map(([key, value]) => {
       if (Array.isArray(value)) {

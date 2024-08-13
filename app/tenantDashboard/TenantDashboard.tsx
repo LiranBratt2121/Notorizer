@@ -17,7 +17,7 @@ const TenantDashboard = () => {
 
       <Button 
         title='Update Spaces'
-        onPress={() => router.push({pathname:'/tenantDashboard/UpdateSpaces' as any})}
+        onPress={() => router.push({pathname:'/tenantDashboard/UpdateCorner' as any})}
       />
     </SafeAreaView>
   )

@@ -1,6 +1,6 @@
 import { db } from "@/firebase/FirebaseConfig";
 import { Data, Property, Tenant } from "@/types/common/Household";
-import { collection, doc, getDoc, getDocs} from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, query, where} from "firebase/firestore";
 
 export const findDocumentIdByName = async (collectionPath: string, name: string) => {
   const querySnapshot = await getDocs(collection(db, collectionPath));
@@ -57,12 +57,17 @@ export const findTenantByName = async (tenantName: string): Promise<Tenant | nul
   }
 };
 
-export const findPropertyDataByTenant = async (tenant: Tenant): Promise<Data | null> => {
+export const findPropertyDataByTenantInfo = async (tenant: Tenant['tenantInfo']): Promise<Data | null> => {
   try {
-    const landlordId = tenant.tenantInfo.landlordId ?? "NA";
+    const landlordId = tenant.landlordId ?? "NA";
+    const tenantNumber = tenant.number ?? "UNKNOWN";
 
-    const querySnapshot = await getDocs(collection(db, "landlordUser", landlordId, "property"));
-    console.log("Query snapshot:", ["landlordUser", landlordId, "property"]);
+    const propertyQuery = query(
+      collection(db, "landlordUser", landlordId, "property"),
+      where("tenantInfo.number", "==", tenantNumber)
+    );
+
+    const querySnapshot = await getDocs(propertyQuery);
 
     if (!querySnapshot.empty) {
       const doc = querySnapshot.docs[0];

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { SafeAreaView, Text, View, StyleSheet, ScrollView, Pressable } from "react-native";
+import { SafeAreaView, Text, View, StyleSheet, ScrollView, Pressable, Alert } from "react-native";
 import Checkbox from "expo-checkbox";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import SignatureScreen from "@/components/common/SignatureScreen";
@@ -16,7 +16,7 @@ type LocalSearchParams = {
 const SignUpUserAgreement = () => {
   const router = useRouter();
   const { name, email, password, confirmPassword }: LocalSearchParams = useLocalSearchParams();
-  const [fullName, setFullName] = useState<string>(name ?? "");
+  const [fullName, setFullName] = useState<string>('');
   const [signature, setSignature] = useState<string | null>(null);
   const [showSignatureScreen, setShowSignatureScreen] = useState(false);
   const [isAgreed, setIsAgreed] = useState(false);
@@ -31,12 +31,26 @@ const SignUpUserAgreement = () => {
   }, [signature]);
 
   const handleSave = (path: string) => {
-    if (path.length == 0){
-      alert("Please sign the agreement");
+    if (!fullName.trim()) {
+      Alert.alert("Validation Error", "Please enter your full name.");
       return;
     }
+    
+    if (path.length === 0) {
+      Alert.alert("Validation Error", "Please sign the agreement.");
+      return;
+    }
+    
     setSignature(path);
     setShowSignatureScreen(false);
+  };
+
+  const handleButtonPress = () => {
+    if (!fullName.trim()) {
+      Alert.alert("Validation Error", "Please enter your full name.");
+      return;
+    }
+    setShowSignatureScreen(!showSignatureScreen);
   };
 
   return (
@@ -81,7 +95,7 @@ const SignUpUserAgreement = () => {
       />
       <Button
         title={isAgreed ? "Set Signature" : "Accept Terms to Continue"}
-        onPress={() => setShowSignatureScreen(!showSignatureScreen)}
+        onPress={handleButtonPress}
         disabled={!isAgreed}
         style={[
           styles.button,

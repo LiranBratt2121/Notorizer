@@ -4,7 +4,7 @@ import Input from "../../components/common/Input";
 import Button from "../../components/common/Button";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { db, auth } from "../../firebase/FirebaseConfig";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { collection, doc, setDoc } from "firebase/firestore";
 
 type SignUpInfo = {
@@ -78,7 +78,13 @@ const SignUp: React.FC = () => {
     }
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password)
+      .then((userCred) => {
+        const user = userCred.user;
+        updateProfile(user, { displayName: formData.name });
+        return userCred;
+      });
+
       const user = userCredential.user;
 
       const userDocRef = doc(db, "landlordUser", user.uid);

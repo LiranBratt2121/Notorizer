@@ -1,8 +1,27 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Image, StyleSheet, ScrollView, Dimensions, TextInput, Alert, ActivityIndicator, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  ScrollView,
+  Dimensions,
+  TextInput,
+  Alert,
+  ActivityIndicator,
+  TouchableOpacity,
+} from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import { Property, Data, RoomData, Tenant, TenantProblem } from "@/types/common/Household";
-import encodePath, { encodeLandlordVerificationData } from "@/utils/EncodeFireBaseStorageURL";
+import {
+  Property,
+  Data,
+  RoomData,
+  Tenant,
+  TenantProblem,
+} from "@/types/common/Household";
+import encodePath, {
+  encodeLandlordVerificationData,
+} from "@/utils/EncodeFireBaseStorageURL";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { doc, setDoc, updateDoc } from "firebase/firestore";
 import { db, auth } from "../../firebase/FirebaseConfig";
@@ -10,12 +29,15 @@ import Button from "@/components/common/Button";
 import { PropetryDetailsFirebaseType } from "@/types/PropertyDetailsTypes";
 import { findTenantByName } from "@/utils/FirebaseUtils";
 import RenderProblems from "@/components/RenderProblems";
+import ViewHouseCornerUpdates from "./ViewHouseCornerUpdates";
 
 const windowWidth = Dimensions.get("window").width;
 
 const PreviewHouse: React.FC = () => {
   const { propertyString } = useLocalSearchParams();
-  const [property, setProperty] = useState<Property>(JSON.parse(propertyString as string));
+  const [property, setProperty] = useState<Property>(
+    JSON.parse(propertyString as string)
+  );
   const [tenant, setTenant] = useState<Tenant | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -31,7 +53,7 @@ const PreviewHouse: React.FC = () => {
             setTenant(tenantData);
           } else {
             Alert.alert("No tenant found");
-            console.log("No tenant found")
+            console.log("No tenant found");
           }
         }
       } catch (e) {
@@ -56,7 +78,10 @@ const PreviewHouse: React.FC = () => {
     { key: "bathrooms", value: property.data?.bathrooms ?? "N/A" },
     { key: "externalView", value: property.data?.externalView ?? "N/A" },
     { key: "addRooms", value: property.data?.addRooms ?? "N/A" },
-    { key: "addExternalSpace", value: property.data?.addExternalSpace ?? "N/A" },
+    {
+      key: "addExternalSpace",
+      value: property.data?.addExternalSpace ?? "N/A",
+    },
   ];
 
   const handleEdit = () => {
@@ -73,29 +98,59 @@ const PreviewHouse: React.FC = () => {
     }
 
     const landlordId = user.uid;
-    const propertyDocRef = doc(db, "landlordUser", landlordId, "property", property.id);
+    const propertyDocRef = doc(
+      db,
+      "landlordUser",
+      landlordId,
+      "property",
+      property.id
+    );
 
     const toSave: PropetryDetailsFirebaseType = {
-      bedrooms: Array.isArray(property.data.bedrooms) ? property.data.bedrooms : [property.data.bedrooms ?? { images: [], name: "" }],
-      bathrooms: Array.isArray(property.data.bathrooms) ? property.data.bathrooms : [property.data.bathrooms ?? { images: [], name: "" }],
-      kitchen: Array.isArray(property.data.kitchen) ? property.data.kitchen : [property.data.kitchen ?? { images: [], name: "" }],
-      livingRooms: Array.isArray(property.data.livingRooms) ? property.data.livingRooms : [property.data.livingRooms ?? { images: [], name: "" }],
-      externalView: Array.isArray(property.data.externalView) ? property.data.externalView : [property.data.externalView ?? { images: [], name: "" }],
-      addRooms: Array.isArray(property.data.addRooms) ? property.data.addRooms : [property.data.addRooms ?? { images: [], name: "" }],
-      addExternalSpace: Array.isArray(property.data.addExternalSpace) ? property.data.addExternalSpace : [property.data.addExternalSpace ?? { images: [], name: "" }],
+      bedrooms: Array.isArray(property.data.bedrooms)
+        ? property.data.bedrooms
+        : [property.data.bedrooms ?? { images: [], name: "" }],
+      bathrooms: Array.isArray(property.data.bathrooms)
+        ? property.data.bathrooms
+        : [property.data.bathrooms ?? { images: [], name: "" }],
+      kitchen: Array.isArray(property.data.kitchen)
+        ? property.data.kitchen
+        : [property.data.kitchen ?? { images: [], name: "" }],
+      livingRooms: Array.isArray(property.data.livingRooms)
+        ? property.data.livingRooms
+        : [property.data.livingRooms ?? { images: [], name: "" }],
+      externalView: Array.isArray(property.data.externalView)
+        ? property.data.externalView
+        : [property.data.externalView ?? { images: [], name: "" }],
+      addRooms: Array.isArray(property.data.addRooms)
+        ? property.data.addRooms
+        : [property.data.addRooms ?? { images: [], name: "" }],
+      addExternalSpace: Array.isArray(property.data.addExternalSpace)
+        ? property.data.addExternalSpace
+        : [property.data.addExternalSpace ?? { images: [], name: "" }],
       landlordVerificationData: {
-        idImageUrl: encodePath(property.data.landlordVerificationData?.idImageUrl ?? "") ?? null,
-        ownershipImageUrl: encodePath(property.data.landlordVerificationData?.ownershipImageUrl ?? "") ?? null,
-        houseImageUrl: encodePath(property.data.landlordVerificationData?.houseImageUrl ?? "") ?? null
+        idImageUrl:
+          encodePath(
+            property.data.landlordVerificationData?.idImageUrl ?? ""
+          ) ?? null,
+        ownershipImageUrl:
+          encodePath(
+            property.data.landlordVerificationData?.ownershipImageUrl ?? ""
+          ) ?? null,
+        houseImageUrl:
+          encodePath(
+            property.data.landlordVerificationData?.houseImageUrl ?? ""
+          ) ?? null,
       },
       tenantInfo: {
         tenantInfo: {
           name: property.data.tenantInfo?.name ?? "",
           number: property.data.tenantInfo?.number ?? "",
+          problems:
+            property.data.tenantInfo?.problems ?? ({} as TenantProblem[]),
           houseImages: property.data.tenantInfo?.houseImages ?? {},
-          problems: property.data.tenantInfo?.problems ?? {} as TenantProblem[]
         },
-      }
+      },
     };
 
     try {
@@ -123,13 +178,22 @@ const PreviewHouse: React.FC = () => {
     }
 
     const landlordId = user.uid;
-    const propertyDocRef = doc(db, "landlordUser", landlordId, "property", property.id);
+    const propertyDocRef = doc(
+      db,
+      "landlordUser",
+      landlordId,
+      "property",
+      property.id
+    );
 
     try {
       await updateDoc(propertyDocRef, {
-        tenantInfo: null // Remove tenant information
+        tenantInfo: null, // Remove tenant information
       });
-      setProperty(prev => ({ ...prev, data: { ...prev.data, tenantInfo: null } }));
+      setProperty((prev) => ({
+        ...prev,
+        data: { ...prev.data, tenantInfo: null },
+      }));
       Alert.alert("Success", "Tenant removed successfully");
     } catch (error) {
       console.error("Error removing tenant: ", error);
@@ -137,8 +201,12 @@ const PreviewHouse: React.FC = () => {
     }
   };
 
-  const handleRoomNameChange = (categoryKey: string, index: number, newName: string) => {
-    setProperty(prev => {
+  const handleRoomNameChange = (
+    categoryKey: string,
+    index: number,
+    newName: string
+  ) => {
+    setProperty((prev) => {
       const newData = { ...prev.data };
       if (!newData[categoryKey as keyof Data]) {
         console.warn(`Category key ${categoryKey} is undefined`);
@@ -159,15 +227,28 @@ const PreviewHouse: React.FC = () => {
           <TextInput
             style={styles.input}
             value={room.name}
-            onChangeText={(newName) => handleRoomNameChange(categoryKey, roomIndex, newName)}
+            onChangeText={(newName) =>
+              handleRoomNameChange(categoryKey, roomIndex, newName)
+            }
           />
         ) : (
-          <Text style={styles.roomName}>{room.name || `Room ${roomIndex + 1}`}</Text>
+          <Text style={styles.roomName}>
+            {room.name || `Room ${roomIndex + 1}`}
+          </Text>
         )}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imageScroll}>
-          {room.images && room.images.map((imageUrl, imageIndex) => (
-            <Image key={imageIndex} source={{ uri: encodePath(imageUrl) }} style={styles.roomImage} />
-          ))}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.imageScroll}
+        >
+          {room.images &&
+            room.images.map((imageUrl, imageIndex) => (
+              <Image
+                key={imageIndex}
+                source={{ uri: encodePath(imageUrl) }}
+                style={styles.roomImage}
+              />
+            ))}
         </ScrollView>
       </View>
     ));
@@ -177,13 +258,17 @@ const PreviewHouse: React.FC = () => {
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Text style={styles.header}>{property.address} Preview</Text>
-  
+
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>Tenant Information</Text>
           {property.data.tenantInfo ? (
             <>
-              <Text style={styles.infoValue}>Name: {property.data.tenantInfo.name}</Text>
-              <Text style={styles.infoValue}>Number: {property.data.tenantInfo.number}</Text>
+              <Text style={styles.infoValue}>
+                Name: {property.data.tenantInfo.name}
+              </Text>
+              <Text style={styles.infoValue}>
+                Number: {property.data.tenantInfo.number}
+              </Text>
               {isEditing && (
                 <TouchableOpacity onPress={handleRemoveTenant}>
                   <Text style={styles.removeButton}>Remove Tenant</Text>
@@ -193,30 +278,37 @@ const PreviewHouse: React.FC = () => {
           ) : (
             <Button
               title="Add Tenant"
-              onPress={() => router.navigate({
-                pathname: "/landlordDashboard/AddTenant",
-                params: { houseAddr: property.address },
-              })}
+              onPress={() =>
+                router.navigate({
+                  pathname: "/landlordDashboard/AddTenant",
+                  params: { houseAddr: property.address },
+                })
+              }
             />
           )}
         </View>
-  
+
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>Verification Images</Text>
           {images.map((image) => (
             <View key={image.key} style={styles.imageContainer}>
               <Text style={styles.imageTitle}>{image.title}</Text>
-              <Image source={{ uri: image.url ?? "" }} style={styles.verificationImage} />
+              <Image
+                source={{ uri: image.url ?? "" }}
+                style={styles.verificationImage}
+              />
             </View>
           ))}
         </View>
-  
+
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>House Information</Text>
           {houseInfo.map((info) => (
             <View key={info.key} style={styles.infoItem}>
-              <Text style={styles.sectionHeader}>{info.key.charAt(0).toUpperCase() + info.key.slice(1)}:</Text>
-              {typeof info.value === 'string' ? (
+              <Text style={styles.sectionHeader}>
+                {info.key.charAt(0).toUpperCase() + info.key.slice(1)}:
+              </Text>
+              {typeof info.value === "string" ? (
                 <Text style={styles.infoValue}>{info.value}</Text>
               ) : (
                 renderImages(info.value as RoomData[], info.key)
@@ -227,15 +319,19 @@ const PreviewHouse: React.FC = () => {
 
         <View style={styles.section}>
           <Text style={styles.sectionHeader}>Problems</Text>
-          {tenant?.tenantInfo.problems && tenant.tenantInfo.problems.length > 0 ? (
-            <RenderProblems
-              problems={tenant?.tenantInfo.problems}
-            />
+          {tenant?.tenantInfo.problems &&
+          tenant.tenantInfo.problems.length > 0 ? (
+            <RenderProblems problems={tenant?.tenantInfo.problems} />
           ) : (
             <Text style={styles.infoValue}>No problems reported</Text>
           )}
         </View>
-  
+
+        <View style={styles.section}>
+          <Text style={styles.sectionHeader}>Recent Imagery</Text>
+          <ViewHouseCornerUpdates tenantInfo={tenant?.tenantInfo ?? null} />
+        </View>
+
         {isEditing ? (
           <View style={styles.buttonContainer}>
             <Button title="Cancel" onPress={handleCancel} />
@@ -244,7 +340,7 @@ const PreviewHouse: React.FC = () => {
         ) : (
           <Button title="Edit" onPress={handleEdit} />
         )}
-  
+
         {isLoading && (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#0000ff" />
@@ -259,7 +355,7 @@ const PreviewHouse: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
   },
   scrollContent: {
     padding: 16,
@@ -268,11 +364,11 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
-    textAlign: 'center',
+    textAlign: "center",
   },
   section: {
     marginBottom: 20,
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderRadius: 8,
     padding: 16,
     shadowColor: "#000",
@@ -285,7 +381,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 10,
-    color: '#333',
+    color: "#333",
   },
   imageContainer: {
     marginBottom: 16,
@@ -294,10 +390,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     marginBottom: 8,
-    color: '#555',
+    color: "#555",
   },
   verificationImage: {
-    width: '100%',
+    width: "100%",
     height: 200,
     resizeMode: "cover",
     borderRadius: 8,
@@ -308,19 +404,19 @@ const styles = StyleSheet.create({
   infoKey: {
     fontSize: 16,
     fontWeight: "600",
-    color: '#444',
+    color: "#444",
     marginBottom: 5,
   },
   infoValue: {
     fontSize: 16,
-    color: '#666',
+    color: "#666",
   },
   roomName: {
     fontSize: 16,
     fontWeight: "600",
     marginTop: 10,
     marginBottom: 5,
-    color: '#444',
+    color: "#444",
   },
   imageScroll: {
     flexGrow: 0,
@@ -335,30 +431,30 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 40,
-    borderColor: 'gray',
+    borderColor: "gray",
     borderWidth: 1,
     marginBottom: 10,
     paddingHorizontal: 10,
   },
   buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+    flexDirection: "row",
+    justifyContent: "space-around",
     marginTop: 20,
   },
   loadingContainer: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
   },
   removeButton: {
-    color: 'red',
+    color: "red",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginTop: 10,
   },
   problemContainer: {
@@ -366,11 +462,11 @@ const styles = StyleSheet.create({
   },
   problemDescription: {
     fontSize: 16,
-    color: '#333',
+    color: "#333",
     marginBottom: 8,
   },
   problemImage: {
-    width: '100%',
+    width: "100%",
     height: 150,
     resizeMode: "cover",
     borderRadius: 8,

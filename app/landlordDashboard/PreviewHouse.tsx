@@ -31,6 +31,7 @@ const PreviewHouse: React.FC = () => {
             setTenant(tenantData);
           } else {
             Alert.alert("No tenant found");
+            console.log("No tenant found")
           }
         }
       } catch (e) {

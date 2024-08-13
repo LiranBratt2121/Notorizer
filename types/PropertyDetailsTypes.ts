@@ -29,5 +29,5 @@ export type PropetryDetailsFirebaseType = {
     ownershipImageUrl: string | null;
     houseImageUrl: string | null;
   };
-  tenantInfo?: Tenant
+  tenantInfo?: Tenant['tenantInfo']
 };
